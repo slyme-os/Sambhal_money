@@ -31,7 +31,7 @@ export function PayoutSheet({ onClose }: { onClose: () => void }) {
         <div className="space-y-5">
           <Bi hi="पेमेंट आया" en="Payment came" />
 
-          <p className="num text-center text-5xl font-extrabold tracking-tight" aria-live="polite">
+          <p className="num display text-center text-[56px] font-semibold" aria-live="polite">
             {amount ? formatINR(amount) : <span className="text-muted">₹0</span>}
           </p>
 
@@ -44,11 +44,11 @@ export function PayoutSheet({ onClose }: { onClose: () => void }) {
                   type="button"
                   aria-pressed={source === s.id}
                   onClick={() => setSource(s.id)}
-                  className={`press flex min-h-12 items-center gap-2 rounded-full border-2 px-4 font-semibold ${
-                    source === s.id ? "border-green bg-green-tint" : "border-line bg-paper"
+                  className={`press flex min-h-12 items-center gap-2 rounded-full border px-4 font-semibold ${
+                    source === s.id ? "border-ink bg-lime text-ink" : "border-line bg-paper"
                   }`}
                 >
-                  <span aria-hidden className="h-3 w-3 rounded-full" style={{ background: s.color }} />
+                  <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${source === s.id ? "bg-ink" : "bg-green"}`} />
                   {s.label}
                 </button>
               ))}
@@ -70,9 +70,9 @@ export function PayoutSheet({ onClose }: { onClose: () => void }) {
 function Split({ amount, r, earnedAfter, onDone }: { amount: number; r: SweepResult; earnedAfter: number; onDone: () => void }) {
   const rows = [
     { key: "kept", hi: "पेट्रोल-खाना", en: "Petrol + food · kept", paise: r.toFloor, cls: "bg-surface" },
-    { key: "bike", hi: "बाइक और मरम्मत", en: "Bike & Repairs", paise: r.split.bike, cls: "bg-green-tint" },
-    { key: "emergency", hi: "इमरजेंसी", en: "Emergency", paise: r.split.emergency, cls: "bg-amber-tint" },
-    { key: "savings", hi: "बचत", en: "Savings", paise: r.split.savings, cls: "bg-green-tint" },
+    { key: "bike", hi: "बाइक और मरम्मत", en: "Bike & Repairs", paise: r.split.bike, cls: "bg-mint" },
+    { key: "emergency", hi: "इमरजेंसी", en: "Emergency", paise: r.split.emergency, cls: "bg-lime-soft" },
+    { key: "savings", hi: "बचत", en: "Savings", paise: r.split.savings, cls: "bg-mint" },
   ];
   const notEnoughForFloor = !r.swept && earnedAfter < FLOOR_PAISE;
 
@@ -88,13 +88,13 @@ function Split({ amount, r, earnedAfter, onDone }: { amount: number; r: SweepRes
             style={{ animationDelay: `${i * 180}ms` }}
           >
             <Bi className="flex-1" hi={row.hi} en={row.en} />
-            <p className="num text-xl font-extrabold">{formatINR(row.paise)}</p>
+            <p className="num text-xl font-semibold">{formatINR(row.paise)}</p>
           </li>
         ))}
       </ol>
 
       {notEnoughForFloor && (
-        <p className="row-in rounded-2xl bg-amber-tint p-4 text-sm font-semibold" style={{ animationDelay: "720ms" }}>
+        <p className="row-in rounded-2xl bg-surface p-4 text-sm font-semibold" style={{ animationDelay: "720ms" }}>
           आज अभी {formatINR(FLOOR_PAISE)} का खर्चा भी पूरा नहीं हुआ — कुछ नहीं कटा।
           <span className="mt-1 block text-xs font-normal text-muted">
             Today&apos;s {formatINR(FLOOR_PAISE)} petrol and food isn&apos;t covered yet — nothing was swept.

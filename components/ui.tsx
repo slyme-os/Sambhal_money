@@ -1,16 +1,17 @@
 "use client";
 
 // Small, hand-built pieces. Every tap target is at least 48px. Hindi is the primary
-// label everywhere and English sits under it in small text.
+// label everywhere and English sits under it in small text. Hindi lines get 1.5
+// leading: Devanagari matras reach above the line and clip at tight leading.
 
 import { useEffect, useRef, type ReactNode } from "react";
 
 /** Hindi label first, English subtext below. */
-export function Bi({ hi, en, tone = "ink", className = "" }: { hi: string; en?: string; tone?: "ink" | "light"; className?: string }) {
+export function Bi({ hi, en, className = "" }: { hi: string; en?: string; className?: string }) {
   return (
     <span className={`block ${className}`}>
-      <span className={`block text-base font-semibold leading-snug ${tone === "light" ? "text-white" : "text-ink"}`}>{hi}</span>
-      {en && <span className={`block text-xs ${tone === "light" ? "text-white/80" : "text-muted"}`}>{en}</span>}
+      <span className="block text-base font-semibold leading-normal text-ink">{hi}</span>
+      {en && <span className="block text-xs text-muted">{en}</span>}
     </span>
   );
 }
@@ -18,26 +19,26 @@ export function Bi({ hi, en, tone = "ink", className = "" }: { hi: string; en?: 
 export function Bar({ value, color = "var(--green)", label }: { value: number; color?: string; label: string }) {
   const pct = Math.max(0, Math.min(1, value)) * 100;
   return (
-    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className="h-2.5 w-full overflow-hidden rounded-full bg-line">
+    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className="h-2 w-full overflow-hidden rounded-full bg-mint">
       <div className="bar-fill h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
     </div>
   );
 }
 
-export function Ring({ value, size = 168, stroke = 14, children }: { value: number; size?: number; stroke?: number; children?: ReactNode }) {
+export function Ring({ value, size = 176, stroke = 12, children }: { value: number; size?: number; stroke?: number; children?: ReactNode }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const v = Math.max(0, Math.min(1, value));
   return (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--track)" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="var(--amber)"
+          stroke="var(--green)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={c}
@@ -62,9 +63,9 @@ export function Sheet({ onClose, children, label }: { onClose: () => void; child
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={label}>
-      <button type="button" aria-label="बंद करो / Close" onClick={onClose} className="backdrop-in absolute inset-0 bg-ink/40" />
-      <div className="sheet-in relative max-h-[92dvh] w-full max-w-[430px] overflow-y-auto rounded-t-3xl bg-paper px-5 pb-8 pt-3 shadow-raised sm:rounded-3xl">
-        <div aria-hidden className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line sm:hidden" />
+      <button type="button" aria-label="बंद करो / Close" onClick={onClose} className="backdrop-in absolute inset-0 bg-ink/35" />
+      <div className="sheet-in relative max-h-[92dvh] w-full max-w-[430px] overflow-y-auto rounded-t-[28px] bg-paper px-5 pb-8 pt-3 shadow-raised sm:rounded-[28px]">
+        <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line sm:hidden" />
         {children}
       </div>
     </div>
@@ -97,7 +98,7 @@ export function Keypad({ value, onChange, max = 6 }: { value: string; onChange: 
           type="button"
           onClick={() => press(k)}
           aria-label={k === "del" ? "मिटाओ / Delete" : k}
-          className="press num h-16 rounded-2xl bg-surface text-2xl font-semibold active:bg-line"
+          className="press num h-16 rounded-2xl bg-surface text-2xl font-semibold active:bg-mint-deep"
         >
           {k === "del" ? "⌫" : k}
         </button>
@@ -106,21 +107,21 @@ export function Keypad({ value, onChange, max = 6 }: { value: string; onChange: 
   );
 }
 
+/** Primary is a lime fill with ink text: the one loud colour on any screen. */
 export function Button({ children, variant = "primary", onClick, disabled, type = "button", className = "" }: {
   children: ReactNode;
-  variant?: "primary" | "amber" | "ghost";
+  variant?: "primary" | "ghost";
   onClick?: () => void;
   disabled?: boolean;
   type?: "button" | "submit";
   className?: string;
 }) {
   const style = {
-    primary: "bg-green text-white",
-    amber: "bg-amber text-ink",
-    ghost: "border-2 border-line bg-paper text-ink",
+    primary: "bg-lime text-ink",
+    ghost: "border border-line bg-paper text-ink",
   }[variant];
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className={`press flex min-h-14 w-full items-center justify-center rounded-2xl px-5 text-lg font-bold shadow-card disabled:opacity-40 ${style} ${className}`}>
+    <button type={type} onClick={onClick} disabled={disabled} className={`press flex min-h-14 w-full items-center justify-center rounded-2xl px-5 text-lg font-semibold disabled:opacity-40 ${style} ${className}`}>
       {children}
     </button>
   );

@@ -6,12 +6,13 @@ export const APP_NAME_HI = "संभल";
 /** Petrol + food. Filled first every day; never swept. */
 export const FLOOR_PAISE = 300 * RUPEE;
 
+/** Income sources. One palette everywhere, so no per-brand colours. */
 export const SOURCES = [
-  { id: "rapido", label: "Rapido", color: "#D4A017" },
-  { id: "zepto", label: "Zepto", color: "#6C2BD9" },
-  { id: "swiggy", label: "Swiggy", color: "#E8590C" },
-  { id: "blinkit", label: "Blinkit", color: "#0E6B3C" },
-  { id: "cash", label: "कैश", color: "#5E6459" },
+  { id: "rapido", label: "Rapido" },
+  { id: "zepto", label: "Zepto" },
+  { id: "swiggy", label: "Swiggy" },
+  { id: "blinkit", label: "Blinkit" },
+  { id: "cash", label: "कैश" },
 ] as const;
 
 export type SourceId = (typeof SOURCES)[number]["id"];

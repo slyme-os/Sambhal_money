@@ -17,7 +17,7 @@ export function SpendSheet({ onClose }: { onClose: () => void }) {
       <div className="space-y-5">
         <Bi hi="खर्च हुआ" en="I spent" />
 
-        <p className="num text-center text-5xl font-extrabold tracking-tight" aria-live="polite">
+        <p className="num display text-center text-[56px] font-semibold" aria-live="polite">
           {amount ? formatINR(amount) : <span className="text-muted">₹0</span>}
         </p>
         <p className="text-center text-sm text-muted">

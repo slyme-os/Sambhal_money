@@ -1,14 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_Devanagari } from "next/font/google";
+import { Geist, Noto_Sans_Devanagari } from "next/font/google";
 import { SwRegister } from "@/components/SwRegister";
 import { APP_NAME } from "@/lib/config";
 import "./globals.css";
 
-// One family for Hindi and English: Devanagari plus Latin, three weights.
-const font = Noto_Sans_Devanagari({
+// Two families. Geist does Latin display type and numerals; Noto Sans Devanagari does
+// Hindi (and Latin fallback). Noto has no 800 weight here, so bold is the heaviest.
+const latin = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const hindi = Noto_Sans_Devanagari({
   variable: "--font-sans-hi",
   subsets: ["devanagari", "latin"],
-  weight: ["400", "600", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -24,13 +31,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0E5C36",
+  themeColor: "#17593B",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="hi">
-      <body className={`${font.variable} antialiased`}>
+      <body className={`${latin.variable} ${hindi.variable} antialiased`}>
         {children}
         <SwRegister />
       </body>

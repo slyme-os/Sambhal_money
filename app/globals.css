@@ -1,35 +1,37 @@
 @import "tailwindcss";
 
 /*
- * Sambhal palette: deep green, warm amber, off-white. Flat colour only, no gradients.
- * Light theme only. Every text/background pair meets WCAG AA; amber is a fill behind
- * dark ink, never text on white.
+ * Sambhal palette: white, light green and lime yellow, with one deep green for text
+ * and progress. Lime is only ever a fill behind dark ink, never a stroke or text on
+ * white (too pale to read). Flat colour, with one soft haze on the hero card.
  */
 @theme {
-  --color-green: #0e5c36;
-  --color-green-tint: #e6f2ea;
-  --color-amber: #f5a623;
-  --color-amber-tint: #fff4dc;
+  --color-bg: #ffffff;
+  --color-paper: #ffffff;
+  --color-surface: #f2f8f4;
+  --color-mint: #e4f4ea;
+  --color-mint-deep: #bfe3cc;
+  --color-lime: #d6f25c;
+  --color-lime-soft: #f1fac7;
+  --color-green: #17593b;
+  --color-ink: #0f1f17;
+  --color-muted: #5c6b62;
+  --color-line: #e2ebe5;
   --color-alert: #b42318;
   --color-alert-tint: #fbe9e7;
-  --color-bg: #faf7f0;
-  --color-paper: #ffffff;
-  --color-surface: #f3f0e8;
-  --color-line: #e6e0d2;
-  --color-ink: #1b1f1a;
-  --color-muted: #5e6459;
 
-  --shadow-card: 0 1px 2px rgba(27, 31, 26, 0.05), 0 1px 3px rgba(27, 31, 26, 0.06);
-  --shadow-raised: 0 10px 30px rgba(27, 31, 26, 0.12);
+  --shadow-raised: 0 24px 48px -12px rgba(15, 31, 23, 0.18);
+  --shadow-float: 0 10px 30px -8px rgba(15, 31, 23, 0.16);
 
-  --font-sans: var(--font-sans-hi), system-ui, sans-serif;
+  --font-sans: var(--font-geist), var(--font-sans-hi), system-ui, sans-serif;
 }
 
 /* Used by inline SVG and bar styles. */
 :root {
-  --green: #0e5c36;
-  --amber: #f5a623;
-  --line: #e6e0d2;
+  --green: #17593b;
+  --lime: #d6f25c;
+  --line: #e2ebe5;
+  --track: #e4f4ea;
   color-scheme: light;
 }
 
@@ -40,6 +42,13 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Desktop: the phone column sits on a soft green surround. */
+@media (min-width: 640px) {
+  body {
+    background: var(--color-surface);
+  }
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -47,6 +56,20 @@ html {
 
 .num {
   font-variant-numeric: tabular-nums;
+}
+
+/* Big Latin numerals: tight tracking. Hindi text is never given this class. */
+.display {
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+/* Hero surface: white with a soft lime and mint haze in opposite corners. */
+.hero-haze {
+  background:
+    radial-gradient(120% 90% at 0% 0%, var(--color-lime-soft) 0%, transparent 60%),
+    radial-gradient(90% 80% at 100% 100%, var(--color-mint) 0%, transparent 65%),
+    var(--color-paper);
 }
 
 /* Press feedback: scale 0.97 in 100ms. */

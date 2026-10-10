@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ size: s
         style={{
           width: px,
           height: px,
-          background: "#0E5C36",
+          background: "#17593B",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -34,13 +34,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ size: s
             height: coin,
             borderRadius: coin,
             background: "#ffffff",
-            color: "#0E5C36",
+            color: "#17593B",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <svg width={coin * 0.58} height={coin * 0.58} viewBox="0 0 24 24" fill="none" stroke="#0E5C36" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12" /><path d="M6 8h12" /><path d="m6 13 8.5 8" /><path d="M6 13h3" /><path d="M9 13c6.667 0 6.667-10 0-10" /></svg>
+          <svg width={coin * 0.58} height={coin * 0.58} viewBox="0 0 24 24" fill="none" stroke="#17593B" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12" /><path d="M6 8h12" /><path d="m6 13 8.5 8" /><path d="M6 13h3" /><path d="M9 13c6.667 0 6.667-10 0-10" /></svg>
         </div>
         <div
           style={{
@@ -48,7 +48,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ size: s
             width: coin * 0.9,
             height: px * 0.05,
             borderRadius: px,
-            background: "#f8cb46",
+            background: "#D6F25C",
           }}
         />
       </div>
