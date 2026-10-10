@@ -36,6 +36,9 @@ function Shell() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg lg:max-w-[1040px] sm:my-6 sm:min-h-[calc(100dvh-3rem)] sm:overflow-hidden sm:rounded-[2rem] sm:border sm:border-line sm:shadow-raised">
+      <p role="note" className="sticky top-0 z-[60] bg-ink px-4 py-2 text-center text-xs font-semibold leading-normal text-white">
+        डेमो · सभी आँकड़े नमूना हैं · Demo — all figures are sample data
+      </p>
       <header className="flex items-center gap-3 px-5 pb-2 pt-5">
         <span aria-hidden className="grid h-10 w-10 place-items-center rounded-xl bg-lime text-lg font-bold text-ink">₹</span>
         <div className="flex-1">
@@ -60,7 +63,7 @@ function Shell() {
                   type="button"
                   aria-current={active ? "page" : undefined}
                   onClick={() => setTab(id)}
-                  className={`press flex min-h-14 w-full flex-col items-center justify-center rounded-full ${active ? "bg-lime text-ink" : "text-muted"}`}
+                  className={`press flex min-h-14 w-full flex-col items-center justify-center rounded-full ${active ? "bg-lime-soft text-ink" : "text-muted"}`}
                 >
                   <Icon size={20} strokeWidth={active ? 2.4 : 2} aria-hidden />
                   <span className="text-sm font-semibold leading-tight">{hi}</span>

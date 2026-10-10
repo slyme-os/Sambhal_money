@@ -1,9 +1,10 @@
 "use client";
 
 // The credit screen. It shows eligibility only, names the partner NBFC as the lender,
-// and has no apply, disburse or repay action. The comparison is illustrative.
+// and has no apply, disburse or repay action. The cost comparison renders only when
+// LENDER_COMPARISON holds sourced figures.
 
-import { CREDIT } from "@/lib/config";
+import { CREDIT, LENDER_COMPARISON } from "@/lib/config";
 import { formatINR } from "@/lib/money";
 import { useSambhal } from "@/lib/store";
 import { Ring } from "./ui";
@@ -47,9 +48,15 @@ export function Loan() {
       <section className="rounded-[28px] bg-lime-soft p-6" aria-label="Eligibility">
         <p className="text-sm font-semibold">पात्रता</p>
         <p className="mt-2 text-3xl font-semibold leading-snug">
-          {formatINR(CREDIT.eligiblePaise)} तक लोन मिल सकता है
+          {formatINR(CREDIT.eligiblePaise)} तक की पात्रता बन सकती है
         </p>
-        <p className="mt-3 text-sm text-muted">Eligible up to {formatINR(CREDIT.eligiblePaise)} · eligibility, not an offer</p>
+        <p className="mt-3 text-sm text-muted">Eligibility of up to {formatINR(CREDIT.eligiblePaise)} can build up · eligibility, not an offer</p>
+        <p className="num mt-4 font-semibold">
+          {formatINR(state.pots.savings)} जमा → {formatINR(CREDIT.eligiblePaise)} तक · जितना बचाओगे, उतना ज़्यादा
+        </p>
+        <p className="mt-0.5 text-xs text-muted">
+          {formatINR(state.pots.savings)} saved → up to {formatINR(CREDIT.eligiblePaise)} · the more you save, the more you unlock
+        </p>
       </section>
 
       <section className="rounded-2xl border border-line p-5" aria-label="Lender">
@@ -57,11 +64,13 @@ export function Loan() {
         <p className="mt-1 text-sm text-muted">The loan comes from a partner NBFC. Sambhal does not lend.</p>
       </section>
 
-      <section className="space-y-3" aria-label="Illustrative comparison">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted">उदाहरण · Illustrative only</p>
-        <Compare tone="alert" hi={`बाहर से उधार: ${formatINR(CREDIT.borrowMonthlyPaise)}/महीना ब्याज.`} en={`Borrowing outside: ${formatINR(CREDIT.borrowMonthlyPaise)}/month interest`} />
-        <Compare tone="green" hi={`Sambhal के ज़रिए: ${formatINR(CREDIT.sambhalMonthlyPaise)}/महीना.`} en={`Through Sambhal: ${formatINR(CREDIT.sambhalMonthlyPaise)}/month`} />
-      </section>
+      {LENDER_COMPARISON && (
+        <section className="space-y-3" aria-label="Cost comparison">
+          <Compare tone="alert" hi={`बाहर से उधार: ${formatINR(LENDER_COMPARISON.outsidePaise)}/महीना ब्याज.`} en={`Borrowing outside: ${formatINR(LENDER_COMPARISON.outsidePaise)}/month interest`} />
+          <Compare tone="green" hi={`Sambhal के ज़रिए: ${formatINR(LENDER_COMPARISON.sambhalPaise)}/महीना.`} en={`Through Sambhal: ${formatINR(LENDER_COMPARISON.sambhalPaise)}/month`} />
+          <p className="text-xs text-muted">स्रोत · Source: {LENDER_COMPARISON.source}</p>
+        </section>
+      )}
     </div>
   );
 }

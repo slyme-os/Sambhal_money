@@ -27,6 +27,11 @@ export const CREDIT = {
   daysWorked: 81,
   avgDailyEarnPaise: 105_000,
   eligiblePaise: 800_000,
-  borrowMonthlyPaise: 50_000, // illustrative: ₹500/month interest outside
-  sambhalMonthlyPaise: 15_000, // illustrative: ₹150/month through Sambhal
 } as const;
+
+/**
+ * Outside-lender vs Sambhal cost comparison on the Loan screen. Leave as null and the
+ * card does not render. Fill it in only with sourced figures, and always with a source
+ * line, e.g. { outsidePaise: 50_000, sambhalPaise: 15_000, source: "3 riders, Bengaluru, 11 Oct 2026" }.
+ */
+export const LENDER_COMPARISON: { outsidePaise: number; sambhalPaise: number; source: string } | null = null;
