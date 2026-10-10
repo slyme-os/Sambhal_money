@@ -11,7 +11,7 @@ export default function Icon() {
           width: 32,
           height: 32,
           borderRadius: 8,
-          background: "#0c831f",
+          background: "#0E5C36",
           color: "#ffffff",
           display: "flex",
           alignItems: "center",

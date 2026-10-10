@@ -1,18 +1,18 @@
 import type { MetadataRoute } from "next";
-import { APP_NAME, APP_SHORT_NAME } from "@/lib/config";
+import { APP_NAME } from "@/lib/config";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: APP_NAME,
-    short_name: APP_SHORT_NAME,
-    description: "Rent and savings from daily earnings",
-    lang: "en",
+    short_name: APP_NAME,
+    description: "हर पेमेंट से बचत। Save from every payout.",
+    lang: "hi",
     start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#ffffff",
-    theme_color: "#0c831f",
+    background_color: "#faf7f0",
+    theme_color: "#0e5c36",
     icons: [
       { src: "/icons/192", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/512", sizes: "512x512", type: "image/png", purpose: "any" },

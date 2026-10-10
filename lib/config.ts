@@ -1,34 +1,31 @@
-// Single source of truth for product constants. The app name is a working name
-// (SPEC §11 Q4) — change it here and it changes everywhere.
-export const APP_NAME = "Gmoney";
-export const APP_SHORT_NAME = "Gmoney";
+import { RUPEE } from "./money";
 
-/** Money is always integer paise. ₹1 = 100 paise. */
-export const RUPEE = 100;
+export const APP_NAME = "Sambhal";
+export const APP_NAME_HI = "संभल";
 
-export const DEFAULTS = {
-  floorPaise: 300 * RUPEE, // SPEC §5: default floor ₹300
-  rentShareBp: 7000, // 70% of surplus to rent until the cycle target is met
-  emergencyShareBp: 4000, // 40% of the remainder to emergency until its target
-  emergencyTargetPaise: 3000 * RUPEE, // SPEC §5: default emergency target ₹3,000
-  minSweepPaise: 20 * RUPEE, // surplus below ₹20 is carried, not allocated
-  weeklyRentPaise: 2450 * RUPEE,
-  nudgeWindowDays: 3, // rent due within 3 days triggers the nudge
-} as const;
+/** Petrol + food. Filled first every day; never swept. */
+export const FLOOR_PAISE = 300 * RUPEE;
+
+export const SOURCES = [
+  { id: "rapido", label: "Rapido", color: "#D4A017" },
+  { id: "zepto", label: "Zepto", color: "#6C2BD9" },
+  { id: "swiggy", label: "Swiggy", color: "#E8590C" },
+  { id: "blinkit", label: "Blinkit", color: "#0E6B3C" },
+  { id: "cash", label: "कैश", color: "#5E6459" },
+] as const;
+
+export type SourceId = (typeof SOURCES)[number]["id"];
 
 /**
- * SPEC §11 Q2 is still open (should the control cohort see the app?). Until it is
- * answered the control cohort gets the savings app with nudges switched off, which
- * is what SPEC §7 describes ("gets no nudges but is still tracked").
+ * Underwriting inputs for the credit screen. Demo figures, not computed from the
+ * ledger, so the pitch is the same every time.
  */
-export const CONTROL_SEES_APP = true;
-
-/** Payout sources in the order riders see them, with their chip colour. */
-export const PLATFORMS = [
-  { value: "rapido", label: "Rapido", color: "var(--platform-rapido)" },
-  { value: "zepto", label: "Zepto", color: "var(--platform-zepto)" },
-  { value: "swiggy", label: "Swiggy", color: "var(--platform-swiggy)" },
-  { value: "blinkit", label: "Blinkit", color: "var(--platform-blinkit)" },
-  { value: "cash", label: "sourceCash", color: "var(--platform-cash)" },
-  { value: "other", label: "sourceOther", color: "var(--platform-other)" },
-] as const;
+export const CREDIT = {
+  streakDays: 74,
+  streakGoal: 90,
+  daysWorked: 81,
+  avgDailyEarnPaise: 105_000,
+  eligiblePaise: 800_000,
+  borrowMonthlyPaise: 50_000, // illustrative: ₹500/month interest outside
+  sambhalMonthlyPaise: 15_000, // illustrative: ₹150/month through Sambhal
+} as const;

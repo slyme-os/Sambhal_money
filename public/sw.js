@@ -1,9 +1,9 @@
-// Offline support for the PWA. Hashed build assets are cache-first; pages are
-// network-first with a cached fallback, so the app opens on a dead 3G connection
-// once it has been visited. Rider data lives in localStorage, not here.
+// Offline support for the PWA. The app has no backend and no stored data, so the shell
+// is all there is to cache. Build assets are cache-first; the page is network-first
+// with a cached fallback, so it opens on a dead 3G connection once it has been visited.
 
-const CACHE = "gmoney-v1";
-const SHELL = ["/", "/pots", "/hisab", "/settings", "/payout", "/spend", "/shock", "/onboarding", "/manifest.webmanifest"];
+const CACHE = "sambhal-v2";
+const SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -55,15 +55,4 @@ self.addEventListener("fetch", (event) => {
         .catch(() => caches.match(request).then((hit) => hit || caches.match("/"))),
     );
   }
-});
-
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "/";
-  event.waitUntil(
-    self.clients.matchAll({ type: "window" }).then((list) => {
-      for (const client of list) if ("focus" in client) return client.navigate(target).then((c) => c && c.focus());
-      return self.clients.openWindow(target);
-    }),
-  );
 });

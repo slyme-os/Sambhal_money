@@ -1,63 +1,43 @@
 @import "tailwindcss";
 
 /*
- * Colour system — "Energetic Pragmatism": the trust of a finance app, the speed of
- * quick-commerce. Defined as CSS custom properties so it can be re-themed later.
- * Light only (SPEC §12: no theme switching). Every text/background pair used for
- * copy meets WCAG AA; amber is only ever a fill behind dark text, never text on white.
+ * Sambhal palette: deep green, warm amber, off-white. Flat colour only, no gradients.
+ * Light theme only. Every text/background pair meets WCAG AA; amber is a fill behind
+ * dark ink, never text on white.
  */
+@theme {
+  --color-green: #0e5c36;
+  --color-green-tint: #e6f2ea;
+  --color-amber: #f5a623;
+  --color-amber-tint: #fff4dc;
+  --color-alert: #b42318;
+  --color-alert-tint: #fbe9e7;
+  --color-bg: #faf7f0;
+  --color-paper: #ffffff;
+  --color-surface: #f3f0e8;
+  --color-line: #e6e0d2;
+  --color-ink: #1b1f1a;
+  --color-muted: #5e6459;
+
+  --shadow-card: 0 1px 2px rgba(27, 31, 26, 0.05), 0 1px 3px rgba(27, 31, 26, 0.06);
+  --shadow-raised: 0 10px 30px rgba(27, 31, 26, 0.12);
+
+  --font-sans: var(--font-sans-hi), system-ui, sans-serif;
+}
+
+/* Used by inline SVG and bar styles. */
 :root {
-  --primary-green: #0c831f;
-  --primary-green-pressed: #0a6e1a;
-  --primary-green-tint: #e8f5e9;
-  --accent-amber: #f8cb46;
-  --accent-amber-tint: #fef7e0;
-  --accent-amber-ink: #6b4e00;
-  --alert-red: #cb202d;
-  --alert-red-tint: #fdecee;
-  --info-purple: #7c4ddb;
-  --info-purple-tint: #f3eeff;
-  --text-primary: #1c1c1c;
-  --text-secondary: #5b5e6b;
-  --text-tertiary: #9ca3af;
-  --bg-primary: #ffffff;
-  --bg-surface: #f4f4f2;
-  --bg-elevated: #ffffff;
-  --border-color: #e5e5e5;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-  --platform-rapido: #c99700;
-  --platform-zepto: #6c1f9e;
-  --platform-swiggy: #e8700f;
-  --platform-blinkit: #0c831f;
-  --platform-cash: #2f6f4f;
-  --platform-other: #686b78;
-
+  --green: #0e5c36;
+  --amber: #f5a623;
+  --line: #e6e0d2;
   color-scheme: light;
 }
 
-@theme inline {
-  --color-brand: var(--primary-green);
-  --color-brand-pressed: var(--primary-green-pressed);
-  --color-brand-tint: var(--primary-green-tint);
-  --color-amber: var(--accent-amber);
-  --color-amber-tint: var(--accent-amber-tint);
-  --color-amber-ink: var(--accent-amber-ink);
-  --color-alert: var(--alert-red);
-  --color-alert-tint: var(--alert-red-tint);
-  --color-info: var(--info-purple);
-  --color-info-tint: var(--info-purple-tint);
-  --color-ink: var(--text-primary);
-  --color-ink-2: var(--text-secondary);
-  --color-ink-3: var(--text-tertiary);
-  --color-paper: var(--bg-primary);
-  --color-surface: var(--bg-surface);
-  --color-line: var(--border-color);
-  --shadow-card: var(--shadow-card);
-  --shadow-raised: var(--shadow-elevated);
-  /* Inter for Latin; Devanagari falls back to the system font every Android ships. */
-  --font-sans: var(--font-inter), "Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", system-ui, sans-serif;
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
 }
 
 html {
@@ -65,102 +45,83 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  overscroll-behavior-y: none;
-}
-
 .num {
   font-variant-numeric: tabular-nums;
 }
 
-/* Pressed state: scale 0.97, 100ms ease-out. */
+/* Press feedback: scale 0.97 in 100ms. */
 .press {
-  transition: transform 100ms ease-out, background-color 100ms ease-out, box-shadow 100ms ease-out;
+  transition: transform 100ms ease-out, background-color 100ms ease-out;
 }
 .press:active {
   transform: scale(0.97);
 }
 
 :focus-visible {
-  outline: 3px solid var(--primary-green);
+  outline: 3px solid var(--green);
   outline-offset: 2px;
 }
 
-/* Screen transition: fade + 8px slide-up, 200ms. */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Screen change: fade and 8px slide up, 200ms. */
 @keyframes screen-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
-/* "backwards", not "both": a lingering transform would trap position:fixed children. */
-.screen-in { animation: screen-in 200ms ease-out backwards; }
+.screen-in {
+  animation: screen-in 200ms ease-out backwards;
+}
 
-@keyframes sheet-in {
+/* Sheet: slides up on phones, scales in on desktop. */
+@keyframes sheet-up {
   from { transform: translateY(100%); }
   to { transform: none; }
 }
-@keyframes backdrop-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.sheet-in { animation: sheet-in 260ms cubic-bezier(0.22, 1.1, 0.36, 1) both; }
-.backdrop-in { animation: backdrop-in 200ms ease-out both; }
-
-@keyframes row-in {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: none; }
-}
-.row-in { animation: row-in 220ms ease-out both; }
-
-@keyframes toast-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: none; }
-}
-.toast-in { animation: toast-in 200ms ease-out both; }
-
-@keyframes nudge-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: none; }
-}
-.nudge-in { animation: nudge-in 220ms ease-out both; }
-
-/* The sweep: each swept amount drops into its pot. */
-@keyframes sweep-drop {
-  0% { opacity: 0; transform: translateY(-24px) scale(0.92); }
-  40% { opacity: 1; }
-  100% { opacity: 1; transform: none; }
-}
-.sweep-drop { animation: sweep-drop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
-
-@keyframes shimmer {
-  from { background-position: -200px 0; }
-  to { background-position: 200px 0; }
-}
-.skeleton {
-  background: linear-gradient(90deg, var(--bg-surface) 0, #ebebe8 50%, var(--bg-surface) 100%);
-  background-size: 400px 100%;
-  animation: shimmer 1.2s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-  }
-}
-
-.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-.scrollbar-none { scrollbar-width: none; }
-.scrollbar-none::-webkit-scrollbar { display: none; }
-
-/* Desktop: bottom sheets become centred dialogs. */
 @keyframes dialog-in {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to { opacity: 1; transform: none; }
 }
-@media (min-width: 1024px) {
-  .sheet-in { animation: dialog-in 180ms ease-out both; }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.sheet-in {
+  animation: sheet-up 260ms cubic-bezier(0.22, 1.1, 0.36, 1) backwards;
+}
+.backdrop-in {
+  animation: fade-in 200ms ease-out backwards;
+}
+@media (min-width: 640px) {
+  .sheet-in {
+    animation: dialog-in 180ms ease-out backwards;
+  }
+}
+
+/* Split rows appear one after another. */
+@keyframes row-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+.row-in {
+  animation: row-in 320ms ease-out backwards;
+}
+
+.bar-fill {
+  transition: width 600ms ease-out;
+}
+.ring-fill {
+  transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
