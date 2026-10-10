@@ -35,7 +35,7 @@ function Shell() {
   const close = () => setSheet(null);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg sm:my-6 sm:min-h-[calc(100dvh-3rem)] sm:overflow-hidden sm:rounded-[2rem] sm:border sm:border-line sm:shadow-raised">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg lg:max-w-[1040px] sm:my-6 sm:min-h-[calc(100dvh-3rem)] sm:overflow-hidden sm:rounded-[2rem] sm:border sm:border-line sm:shadow-raised">
       <header className="flex items-center gap-3 px-5 pb-2 pt-5">
         <span aria-hidden className="grid h-10 w-10 place-items-center rounded-xl bg-lime text-lg font-bold text-ink">₹</span>
         <div className="flex-1">
@@ -46,8 +46,8 @@ function Shell() {
 
       <main className="flex-1 pb-36">
         {tab === "home" && <Home onPayout={() => setSheet("payout")} onSpend={() => setSheet("spend")} />}
-        {tab === "pots" && <Pots />}
-        {tab === "loan" && <Loan />}
+        {tab === "pots" && <div className="lg:mx-auto lg:max-w-[430px]"><Pots /></div>}
+        {tab === "loan" && <div className="lg:mx-auto lg:max-w-[430px]"><Loan /></div>}
       </main>
 
       <nav aria-label="Main" className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-[398px] -translate-x-1/2 rounded-full border border-line bg-paper p-1.5 shadow-float">

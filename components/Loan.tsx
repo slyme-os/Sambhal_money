@@ -17,7 +17,7 @@ export function Loan() {
     <div className="screen-in space-y-6 px-5 pb-8 pt-4">
       <section className="space-y-2 pt-2" aria-label="What this screen shows">
         <p className="text-sm font-semibold text-green">लोन की पात्रता</p>
-        <h1 className="display text-[40px] font-semibold">Your savings, your eligibility.</h1>
+        <h1 className="display text-[40px] font-[480]">Your savings, your eligibility.</h1>
         <p className="text-sm text-muted">यह स्क्रीन सिर्फ़ पात्रता दिखाती है। · This screen only shows eligibility.</p>
       </section>
 

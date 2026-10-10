@@ -48,7 +48,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ size: s
             width: coin * 0.9,
             height: px * 0.05,
             borderRadius: px,
-            background: "#D6F25C",
+            background: "#D4E9A0",
           }}
         />
       </div>

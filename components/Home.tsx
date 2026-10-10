@@ -12,10 +12,10 @@ export function Home({ onPayout, onSpend }: { onPayout: () => void; onSpend: () 
   const safe = safeToSpend(state);
 
   return (
-    <div className="screen-in space-y-6 px-5 pb-8 pt-4">
-      <section className="space-y-2 pt-2">
+    <div className="screen-in space-y-6 px-5 pb-8 pt-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-10 lg:gap-y-6 lg:space-y-0 lg:px-10 lg:pt-8">
+      <section className="space-y-2 pt-2 lg:col-span-2">
         <p className="text-sm font-semibold text-green">हर पेमेंट से बचत</p>
-        <h1 className="display text-[40px] font-semibold">Save from every payout.</h1>
+        <h1 className="display text-[40px] font-[480]">Save from every payout.</h1>
       </section>
 
       <section className="hero-haze rounded-[28px] border border-line p-6" aria-label="Safe to spend today">
@@ -32,7 +32,7 @@ export function Home({ onPayout, onSpend }: { onPayout: () => void; onSpend: () 
         </p>
       </section>
 
-      <section aria-label="Your three pots" className="space-y-3">
+      <section aria-label="Your three pots" className="space-y-3 lg:row-span-2">
         <Bi hi="तीन गुल्लक" en="Your three pots" />
         <ul className="divide-y divide-line">
           {POTS.map((p) => {
@@ -67,7 +67,7 @@ export function Home({ onPayout, onSpend }: { onPayout: () => void; onSpend: () 
         </Button>
       </section>
 
-      <p className="text-center text-xs text-muted">
+      <p className="text-center text-xs text-muted lg:col-span-2">
         पैसा आपके अपने बैंक खाते में ही रहता है · Money stays in your own bank account
       </p>
     </div>

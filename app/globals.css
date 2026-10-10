@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * Sambhal palette: white, light green and lime yellow, with one deep green for text
+ * Sambhal palette: white, light green and desaturated lime, with one deep green for text
  * and progress. Lime is only ever a fill behind dark ink, never a stroke or text on
  * white (too pale to read). Flat colour, with one soft haze on the hero card.
  */
@@ -11,8 +11,8 @@
   --color-surface: #f2f8f4;
   --color-mint: #e4f4ea;
   --color-mint-deep: #bfe3cc;
-  --color-lime: #d6f25c;
-  --color-lime-soft: #f1fac7;
+  --color-lime: #d4e9a0;
+  --color-lime-soft: #f2f8e6;
   --color-green: #17593b;
   --color-ink: #0f1f17;
   --color-muted: #5c6b62;
@@ -29,7 +29,7 @@
 /* Used by inline SVG and bar styles. */
 :root {
   --green: #17593b;
-  --lime: #d6f25c;
+  --lime: #d4e9a0;
   --line: #e2ebe5;
   --track: #e4f4ea;
   color-scheme: light;
