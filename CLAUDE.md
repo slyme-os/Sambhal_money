@@ -50,8 +50,11 @@ cloud sandbox (dl.google.com is blocked): **APKs are built by GitHub Actions** (
 - Design tokens in `app/globals.css`; rules in `docs/DESIGN.md`. Android/Play steps in `docs/ANDROID.md`.
 
 ## Design rules
-- Modern luxury: light canvas, night-forest `lux-card` heroes, lime `#DDF76A` accent (primary button, active tab,
-  hero numbers on dark), slime `#8EDB4F` for money in, amber = set aside, coral/red = shortfall.
+- Monochrome with one accent: warm greys + near-black ink, near-black `lux-card` heroes, lime `#DDF76A` is the
+  only colour (primary button, active tab, hero numbers on dark, icon tiles = night + lime icon). Red only for
+  shortfall/errors. Meaning is carried by icon + words, never colour alone.
+- Bottom bar is measured (`App.tsx`): main padding = bar height + 16px; toasts sit above it. Below 380px the
+  language pill is icon-only and bar labels may wrap (`.action-btn`). Long Indic words use `.wrap-any`.
 - One primary button per screen; tap targets ≥ 48px; works at 360px; text contrast ≥ 4.5:1; lime never as text on light.
 - **Old Android WebViews (BlueStacks):** no Tailwind `translate-*`/`rotate-*`, `dvh`, opacity modifiers (`/40`), or
   Tailwind gradient utilities. Use plain CSS classes in `globals.css`. Tailwind scans only `app/ components/ lib/`.

@@ -290,7 +290,7 @@ function DetectedRow({ txn, onAdd, onIgnore }: { txn: DetectedTxn; onAdd: () => 
 export function ComingTag() {
   const { t } = useSambhal();
   return (
-    <span className="inline-flex min-h-7 items-center rounded-full border border-amber-700 px-2.5 text-xs font-bold text-amber-700">
+    <span className="inline-flex min-h-7 items-center rounded-lg border border-amber-700 px-2 py-0.5 text-xs font-bold leading-snug text-amber-700">
       {t("sms.comingTag")}
     </span>
   );

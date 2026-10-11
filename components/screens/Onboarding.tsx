@@ -151,7 +151,7 @@ function Hero({ icons }: { icons: React.ComponentType<{ size?: number; strokeWid
   return (
     <div aria-hidden className="lux-card flex h-40 items-center justify-center gap-3 rounded-[var(--radius-card)]">
       {icons.map((Icon, i) => (
-        <span key={i} className={`grid place-items-center rounded-2xl ${i === Math.floor(icons.length / 2) ? "lime-tile text-night btn-glow h-20 w-20" : "h-14 w-14 bg-[#1d3a29] text-slime"}`}>
+        <span key={i} className={`grid place-items-center rounded-2xl ${i === Math.floor(icons.length / 2) ? "lime-tile text-night btn-glow h-20 w-20" : "h-14 w-14 bg-forest-800 text-slime"}`}>
           <Icon size={i === Math.floor(icons.length / 2) ? 40 : 28} strokeWidth={2} />
         </span>
       ))}

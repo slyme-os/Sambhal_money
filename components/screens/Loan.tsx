@@ -36,7 +36,7 @@ export function Loan() {
             <p className="mx-auto mt-1 max-w-[104px] text-sm font-semibold leading-tight text-on-dark-2">{t("loan.streak")}</p>
           </div>
         </Ring>
-        <p className="mt-4 rounded-full bg-[#1d3a29] px-4 py-1.5 text-sm font-semibold text-slime">{t("loan.streakLeft", { n: daysLeft, goal: CREDIT.streakGoal })}</p>
+        <p className="mt-4 rounded-full bg-forest-800 px-4 py-1.5 text-sm font-semibold text-slime">{t("loan.streakLeft", { n: daysLeft, goal: CREDIT.streakGoal })}</p>
       </MoneyCard>
 
       <dl className="grid grid-cols-3 gap-2">
@@ -64,7 +64,7 @@ export function Loan() {
             { Icon: Building2, text: t("loan.how3") },
           ].map(({ Icon, text }, i) => (
             <li key={i} className="flex min-h-14 items-center gap-3 rounded-2xl bg-card px-4 py-3 shadow-card">
-              <span aria-hidden className="lime-tile text-night grid h-10 w-10 shrink-0 place-items-center rounded-xl">
+              <span aria-hidden className="chrome-dark text-lime grid h-10 w-10 shrink-0 place-items-center rounded-xl">
                 <Icon size={20} />
               </span>
               <span className="text-base font-medium text-ink">{text}</span>
@@ -93,7 +93,7 @@ function Metric({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-2xl bg-card p-3 text-center shadow-card">
       <dd className="text-lg font-extrabold text-ink">{value}</dd>
-      <dt className="mt-0.5 text-xs font-medium leading-snug text-ink-2">{label}</dt>
+      <dt className="wrap-any mt-0.5 text-xs font-medium leading-snug text-ink-2">{label}</dt>
     </div>
   );
 }

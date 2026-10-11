@@ -98,6 +98,24 @@ function Shell() {
 
   const showPotDetail = tab === "pots" && potId && state.pots.some((p) => p.id === potId);
 
+  // The bottom bar's real height (it grows with long labels or a big font setting), so
+  // the page always ends 16px above it and toasts sit just over it.
+  const bar = useRef<HTMLDivElement>(null);
+  const [barH, setBarH] = useState(168);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const measure = () => setBarH(Math.ceil(el.getBoundingClientRect().height));
+    measure();
+    window.addEventListener("resize", measure);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    ro?.observe(el);
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro?.disconnect();
+    };
+  }, [ready, state.onboarded, tab]);
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-canvas">
       <p role="note" translate="no" className="chrome-dark sticky top-0 z-[60] px-4 pb-1.5 pt-[calc(0.375rem+env(safe-area-inset-top))] text-center text-xs font-semibold leading-normal text-lime">
@@ -115,7 +133,7 @@ function Shell() {
         <>
           <Header onMenu={() => setSheet({ kind: "menu" })} onLanguage={() => setSheet({ kind: "language" })} />
 
-          <main className="flex-1 pb-[calc(11.5rem+env(safe-area-inset-bottom))]">
+          <main className="flex-1" style={{ paddingBottom: barH + 16 }}>
             {tab === "home" && <Home onOpenEntry={(id) => setSheet({ kind: "entry", id })} onOpenSms={() => setSheet({ kind: "sms" })} />}
             {tab === "pots" &&
               (showPotDetail ? (
@@ -133,15 +151,15 @@ function Shell() {
           </main>
 
           {/* Centred with inset + auto margins (not translate), so older WebViews lay it out right. */}
-          <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[480px]">
+          <div ref={bar} className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[480px]">
             {tab !== "loan" && (
-              <div className={`action-fade grid gap-2 px-4 pb-2 pt-6 ${tab === "home" ? "grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]" : "grid-cols-1"}`}>
+              <div className={`action-fade grid gap-2 px-4 pb-2 pt-6 ${tab === "home" ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1"}`}>
                 {tab === "home" && (
-                  <SecondaryButton onClick={() => setSheet({ kind: "spend" })} className="!min-h-14 whitespace-nowrap !px-2 shadow-card" icon={Minus} ariaLabel={t("action.spent")}>
+                  <SecondaryButton onClick={() => setSheet({ kind: "spend" })} className="action-btn !min-h-14 !px-4 shadow-card" icon={Minus} ariaLabel={t("action.spent")}>
                     {t("action.spentShort")}
                   </SecondaryButton>
                 )}
-                <PrimaryButton icon={Plus} onClick={() => setSheet({ kind: "payment" })} className="whitespace-nowrap !px-3">
+                <PrimaryButton icon={Plus} onClick={() => setSheet({ kind: "payment" })} className="action-btn !px-3">
                   {t("action.payment")}
                 </PrimaryButton>
               </div>
@@ -170,7 +188,7 @@ function Shell() {
             </div>
           </div>
 
-          <ToastHost withActionBar={tab !== "loan"} />
+          <ToastHost bottom={barH + 8} />
 
           {sheet?.kind === "payment" && <PaymentSheet onClose={close} prefill={sheet.prefill} />}
           {sheet?.kind === "sms" && <SmsSheet onClose={close} onAddPayment={(prefill) => setSheet({ kind: "payment", prefill })} />}
@@ -205,17 +223,18 @@ function Header({ onMenu, onLanguage }: { onMenu: () => void; onLanguage: () => 
       <span aria-hidden className="chrome-dark grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg font-extrabold text-lime">
         ₹
       </span>
-      <p className="min-w-0 flex-1 truncate text-lg font-extrabold text-ink" translate="no">
+      <p className="min-w-0 flex-1 whitespace-nowrap text-lg font-extrabold text-ink" translate="no">
         {t("app.name")}
       </p>
+      {/* Below 380px the pill drops its label (CSS) so "Sambhal" never truncates. */}
       <button
         type="button"
         onClick={onLanguage}
         aria-label={`${t("lang.button")}: ${current.native}`}
-        className="press flex min-h-12 shrink-0 items-center gap-1.5 rounded-full bg-card pl-3 pr-4 text-base font-bold text-ink shadow-card"
+        className="lang-pill press flex min-h-12 min-w-12 shrink-0 items-center justify-center gap-1.5 rounded-full bg-card text-base font-bold text-ink shadow-card"
       >
         <Languages size={18} strokeWidth={2.2} aria-hidden className="text-green-700" />
-        <span lang={current.code}>{current.native}</span>
+        <span lang={current.code} className="lang-pill-label">{current.native}</span>
       </button>
       <button type="button" onClick={onMenu} aria-label={t("menu.open")} className="press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-card text-ink shadow-card">
         <MoreHorizontal size={24} aria-hidden />

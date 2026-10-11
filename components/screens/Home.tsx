@@ -116,7 +116,7 @@ function SmsCard({ onOpen }: { onOpen: () => void }) {
     return (
       <section aria-label={t("sms.cardTitle")} className="rounded-[var(--radius-card)] bg-card p-4 shadow-card">
         <div className="flex items-start gap-3">
-          <span aria-hidden className="lime-tile text-night grid h-11 w-11 shrink-0 place-items-center rounded-xl">
+          <span aria-hidden className="chrome-dark text-lime grid h-11 w-11 shrink-0 place-items-center rounded-xl">
             <MessageSquareText size={22} />
           </span>
           <div>
@@ -172,8 +172,8 @@ function Stat({ icon, label, paise }: { icon: React.ReactNode; label: string; pa
   return (
     <div className="rounded-[var(--radius-card)] bg-card p-4 shadow-card">
       <dt className="flex items-start gap-2 text-sm font-medium leading-snug text-ink-2">
-        <span className="lime-tile text-night grid h-7 w-7 shrink-0 place-items-center rounded-lg">{icon}</span>
-        <span className="pt-0.5">{label}</span>
+        <span className="chrome-dark text-lime grid h-7 w-7 shrink-0 place-items-center rounded-lg">{icon}</span>
+        <span className="wrap-any min-w-0 pt-0.5">{label}</span>
       </dt>
       <dd className="mt-2">
         <Money paise={paise} className="text-[26px] font-extrabold text-ink" />
