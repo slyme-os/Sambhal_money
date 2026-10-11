@@ -128,7 +128,12 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
               </li>
             ))}
           </ul>
-          {smsMode === "web" && <p className="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">{t("sms.webOnly")}</p>}
+          {smsMode === "web" && (
+            <div className="space-y-2 rounded-2xl bg-amber-50 p-3">
+              <ComingTag />
+              <p className="text-sm font-semibold text-amber-700">{t("sms.webOnly")}</p>
+            </div>
+          )}
           {denied && <p className="rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">{t("sms.denied")}</p>}
           <div className="space-y-1">
             <PrimaryButton icon={native ? MessageSquareText : share ? Share2 : Sparkles} onClick={() => void allow()}>
@@ -166,13 +171,19 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
       <div className="space-y-4">
         <div className="pr-10">
           <h2 className="text-xl font-bold text-ink">{t("sms.title")}</h2>
-          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-green-700">
-              <span aria-hidden className="h-2 w-2 rounded-full bg-green-600" />
-              {t("sms.statusOn")}
-            </span>
-            {state.sms.lastScanAt > 0 && <span>· {t("sms.lastCheck", { time: timeLabel(state.sms.lastScanAt, lang) })}</span>}
-          </p>
+          {smsMode === "web" ? (
+            <div className="mt-2">
+              <ComingTag />
+            </div>
+          ) : (
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-green-700">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-green-600" />
+                {t("sms.statusOn")}
+              </span>
+              {state.sms.lastScanAt > 0 && <span>· {t("sms.lastCheck", { time: timeLabel(state.sms.lastScanAt, lang) })}</span>}
+            </p>
+          )}
         </div>
 
         {share && (
@@ -272,6 +283,16 @@ function DetectedRow({ txn, onAdd, onIgnore }: { txn: DetectedTxn; onAdd: () => 
         </button>
       </div>
     </li>
+  );
+}
+
+/** On the web build SMS capture is only a demo with sample messages: say so. */
+export function ComingTag() {
+  const { t } = useSambhal();
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-full border border-amber-700 px-2.5 text-xs font-bold text-amber-700">
+      {t("sms.comingTag")}
+    </span>
   );
 }
 

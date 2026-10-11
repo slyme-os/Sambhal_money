@@ -4,13 +4,13 @@
 // how much came in and went to pots (two plain stats), and where it went (Today).
 
 import { useState } from "react";
-import { ArrowDownLeft, ChevronRight, Landmark, MessageSquareText, PiggyBank, ReceiptText } from "lucide-react";
+import { ArrowDownLeft, ChevronRight, Landmark, MessageSquareText, PiggyBank, ReceiptText, Sparkles } from "lucide-react";
 import { earnedToday, movedToday, safeToSpend, setAsideToday, spendsByCategory, spentToday, todayActivity } from "@/lib/ledger";
 import { timeLabel } from "@/lib/time";
 import { formatINR } from "@/lib/money";
 import { useSambhal } from "@/lib/store";
 import { BigNumber, CAT_ICONS, EmptyState, Money, MoneyCard, Progress, SecondaryButton, SectionTitle, TextButton, TransactionRow, TrustBadge } from "../ds";
-import { smsTotals } from "../sheets/SmsSheet";
+import { ComingTag, smsTotals } from "../sheets/SmsSheet";
 import { rowFor } from "../rows";
 
 const PREVIEW_ROWS = 4;
@@ -111,6 +111,7 @@ export function Home({ onOpenEntry, onOpenSms }: { onOpenEntry: (id: string) => 
 function SmsCard({ onOpen }: { onOpen: () => void }) {
   const { state, t, lang, smsMode } = useSambhal();
   const { enabled, pending, lastScanAt } = state.sms;
+  const web = smsMode === "web";
   if (!enabled) {
     return (
       <section aria-label={t("sms.cardTitle")} className="rounded-[var(--radius-card)] bg-card p-4 shadow-card">
@@ -120,11 +121,16 @@ function SmsCard({ onOpen }: { onOpen: () => void }) {
           </span>
           <div>
             <h2 className="text-base font-bold text-ink">{t("sms.cardTitle")}</h2>
-            <p className="mt-0.5 text-sm text-muted">{smsMode === "share" ? t("sms.cardBodyShare") : t("sms.cardBody")}</p>
+            {web && (
+              <div className="mt-1">
+                <ComingTag />
+              </div>
+            )}
+            <p className="mt-1 text-sm text-muted">{web ? t("sms.webOnly") : smsMode === "share" ? t("sms.cardBodyShare") : t("sms.cardBody")}</p>
           </div>
         </div>
-        <SecondaryButton icon={MessageSquareText} className="mt-3" onClick={onOpen}>
-          {t("sms.turnOn")}
+        <SecondaryButton icon={web ? Sparkles : MessageSquareText} className="mt-3" onClick={onOpen}>
+          {web ? t("sms.trySample") : t("sms.turnOn")}
         </SecondaryButton>
       </section>
     );
@@ -141,6 +147,15 @@ function SmsCard({ onOpen }: { onOpen: () => void }) {
           <span className="money block text-sm font-semibold">{t("sms.foundSub", totals)}</span>
         </span>
         <ChevronRight size={22} aria-hidden />
+      </button>
+    );
+  }
+  if (web) {
+    return (
+      <button type="button" onClick={onOpen} className="press flex min-h-12 w-full items-center gap-2 rounded-2xl px-1 text-left text-sm font-semibold text-green-700">
+        <Sparkles size={16} aria-hidden />
+        {t("sms.trySample")}
+        <ComingTag />
       </button>
     );
   }

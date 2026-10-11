@@ -134,7 +134,7 @@ export const en = {
   "wd.other": "Something else",
   "wd.tooMuch": "Only {amount} in this pot",
   "wd.previewTitle": "Take {amount} out of {pot}?",
-  "wd.arrives": "In your bank account by tomorrow",
+  "wd.arrives": "Reaches your bank within 24 hours",
   "wd.toast": "{amount} on its way to your bank",
 
   "rm.title": "Remove this entry?",
@@ -168,8 +168,8 @@ export const en = {
   "ob.1.title": "Save a little from every payment",
   "ob.1.body": "Every time money comes in, Sambhal sets aside petrol and food first. The extra goes into pots for your bike, emergencies and savings.",
   "ob.2.title": "Your money stays in your bank",
-  "ob.2.body": "Sambhal never holds your money. Nothing moves without your OK, and you can take money out any time.",
-  "ob.2.noLend": "Sambhal does not lend. No loans, no interest, no debt.",
+  "ob.2.body": "Sambhal never holds your money. Nothing moves without your OK. Take it out whenever you want. It reaches your bank within a day.",
+  "ob.2.noLend": "Sambhal never lends you money itself. Any loan comes from a partner NBFC, and only if you ask.",
   "ob.3.title": "What are you saving for first?",
   "ob.3.body": "Pick one. You can add more pots later.",
   "ob.3.goal": "Goal",
@@ -213,7 +213,7 @@ export const en = {
   "sms.allow": "Allow SMS access",
   "sms.notNow": "Not now",
   "sms.denied": "SMS access was not allowed. You can still add payments by hand.",
-  "sms.webOnly": "SMS capture works in the Android app. Try it here with sample messages.",
+  "sms.webOnly": "SMS capture is coming in the Android app. Try it here with sample messages.",
   "sms.trySample": "Try with sample SMS",
   "sms.paste": "Paste a bank SMS",
   "sms.pastePlaceholder": "Paste the SMS text here",
@@ -239,6 +239,7 @@ export const en = {
   "row.staysInBank": "Stays in your bank (all goals reached)",
   "pots.goalOf": "Goal {goal}",
   "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
+  "sms.comingTag": "Coming in Android app · demo",
 };
 
 export type MsgKey = keyof typeof en;
