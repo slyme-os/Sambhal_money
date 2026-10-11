@@ -3,16 +3,24 @@ import { RUPEE } from "./money";
 export const APP_NAME = "Sambhal";
 export const APP_NAME_HI = "संभल";
 
-/** Petrol + food. Filled first every day; never swept. */
+/**
+ * Daily essentials (petrol + food), the default a rider starts with. Filled first
+ * every day and never moved to pots. Riders can change it in onboarding.
+ */
 export const FLOOR_PAISE = 300 * RUPEE;
+export const ESSENTIALS_CHOICES_PAISE = [200, 300, 400, 500].map((r) => r * RUPEE);
 
-/** Income sources. One palette everywhere, so no per-brand colours. */
+/** A payment above this asks the rider to double-check the amount. */
+export const LARGE_PAYMENT_PAISE = 5_000 * RUPEE;
+
+/** Income sources. Brand names are descriptive only; one palette, no brand colours. */
 export const SOURCES = [
+  { id: "swiggy", label: "Swiggy" },
+  { id: "zomato", label: "Zomato" },
+  { id: "uber", label: "Uber" },
   { id: "rapido", label: "Rapido" },
   { id: "zepto", label: "Zepto" },
-  { id: "swiggy", label: "Swiggy" },
-  { id: "blinkit", label: "Blinkit" },
-  { id: "cash", label: "कैश" },
+  { id: "cash", label: null },
 ] as const;
 
 export type SourceId = (typeof SOURCES)[number]["id"];

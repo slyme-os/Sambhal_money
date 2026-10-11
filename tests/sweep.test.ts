@@ -1,8 +1,11 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { FLOOR_PAISE } from "@/lib/config";
-import { reducer, safeToSpend } from "@/lib/state";
-import { seedState } from "@/lib/seed";
+import {
+  DEFAULT_POTS, allocate, earnedToday, movedToday, potBalance, recomputeDay, reducer, safeToSpend,
+  seedState, setAsideToday, totalInPots, type Entry, type State,
+} from "@/lib/ledger";
+import { dayKey } from "@/lib/time";
 import { sweep } from "@/lib/sweep";
 
 const R = 100;
@@ -78,42 +81,115 @@ describe("sweep — rounding always sums exactly", () => {
   });
 });
 
-describe("state — what the screens do", () => {
-  it("opens at ₹730 earned, ₹300 safe to spend, pots as seeded", () => {
-    const s = seedState();
-    expect(s.earnedTodayPaise).toBe(730 * R);
+// 11 Oct 2026, 12:00 IST.
+const NOON = Date.UTC(2026, 9, 11, 6, 30);
+const seed = () => seedState(NOON);
+const pay = (s: State, id: string, rupees: number, at = NOON) =>
+  reducer(s, { type: "payout", id, at, amountPaise: rupees * R, source: "rapido" });
+const emptyDay = (): State => ({ ...seed(), entries: seed().entries.filter((e) => e.kind === "opening") });
+
+describe("ledger — what the screens show", () => {
+  it("opens at ₹730 earned, ₹300 safe to spend, pots at ₹1,750 / ₹640 / ₹2,180", () => {
+    const s = seed();
+    expect(earnedToday(s)).toBe(730 * R);
     expect(safeToSpend(s)).toBe(300 * R);
-    expect(s.pots).toEqual({ bike: 1750 * R, emergency: 640 * R, savings: 2180 * R });
-    expect(s.sweptTodayPaise).toBe(430 * R);
+    expect(movedToday(s)).toBe(430 * R);
+    expect(potBalance(s, "bike")).toBe(1750 * R);
+    expect(potBalance(s, "emergency")).toBe(640 * R);
+    expect(potBalance(s, "savings")).toBe(2180 * R);
   });
 
-  it("seeded payouts split exactly like the sweep does", () => {
-    const s = seedState();
-    expect(s.payouts.reduce((t, p) => t + p.split.bike + p.split.emergency + p.split.savings, 0)).toBe(s.sweptTodayPaise);
+  it("a payment adds to today's earnings and to the pots; essentials are never moved", () => {
+    const before = seed();
+    const after = pay(before, "t", 1400);
+    expect(earnedToday(after)).toBe(earnedToday(before) + 1400 * R);
+    expect(totalInPots(after) - totalInPots(before)).toBe(1400 * R);
+    expect(setAsideToday(after)).toBe(300 * R);
   });
 
-  it("a payout adds to today's earnings and to the pots, and the floor is never touched", () => {
-    const before = seedState();
-    const after = reducer(before, { type: "payout", id: "t", amountPaise: 1400 * R, source: "rapido" });
-    expect(after.earnedTodayPaise).toBe(before.earnedTodayPaise + 1400 * R);
-    // Earned is already past the floor, so the whole payout is surplus.
-    expect(after.sweptTodayPaise - before.sweptTodayPaise).toBe(1400 * R);
-    const added = (after.pots.bike - before.pots.bike) + (after.pots.emergency - before.pots.emergency) + (after.pots.savings - before.pots.savings);
-    expect(added).toBe(1400 * R);
-    expect(after.payouts[0].toFloorPaise).toBe(0);
+  it("a bad day moves nothing to pots", () => {
+    const s = pay(emptyDay(), "t", 200);
+    expect(movedToday(s)).toBe(0);
+    expect(setAsideToday(s)).toBe(200 * R);
   });
 
-  it("a bad day sweeps nothing", () => {
-    const empty = { ...seedState(), earnedTodayPaise: 0, sweptTodayPaise: 0, payouts: [] };
-    const after = reducer(empty, { type: "payout", id: "t", amountPaise: 200 * R, source: "zepto" });
-    expect(after.sweptTodayPaise).toBe(0);
-    expect(after.pots).toEqual(empty.pots);
-  });
-
-  it("spending lowers safe-to-spend and never goes below zero", () => {
-    let s = reducer(seedState(), { type: "spend", amountPaise: 120 * R });
+  it("spending lowers safe-to-spend and goes negative to show a shortfall", () => {
+    let s = reducer(seed(), { type: "spend", id: "s1", at: NOON, amountPaise: 120 * R });
     expect(safeToSpend(s)).toBe(180 * R);
-    s = reducer(s, { type: "spend", amountPaise: 900 * R });
-    expect(safeToSpend(s)).toBe(0);
+    s = reducer(s, { type: "spend", id: "s2", at: NOON, amountPaise: 225 * R });
+    expect(safeToSpend(s)).toBe(-45 * R);
+  });
+});
+
+describe("ledger — allocation and balances", () => {
+  it("property: default pots split exactly like sweep()", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 10_000_000 }), (surplus) => {
+        const r = sweep(surplus, 10_000_000, 0);
+        expect(allocate(surplus, DEFAULT_POTS)).toEqual(r.split);
+      }),
+    );
+  });
+
+  it("property: every pot balance equals openings + allocations − withdrawals", () => {
+    fc.assert(
+      fc.property(fc.array(fc.integer({ min: 1, max: 5_000 }), { maxLength: 12 }), (amounts) => {
+        let s = seed();
+        amounts.forEach((a, i) => (s = pay(s, `p${i}`, a, NOON + i)));
+        s = reducer(s, { type: "withdraw", id: "w", at: NOON, potId: "bike", amountPaise: 100 * R, reason: "repair" });
+        for (const pot of s.pots) {
+          const sum = s.entries.reduce((t, e: Entry) => {
+            if (e.kind === "opening" && e.potId === pot.id) return t + e.amountPaise;
+            if (e.kind === "payout") return t + (e.alloc[pot.id] ?? 0);
+            if (e.kind === "withdraw" && e.potId === pot.id) return t - e.amountPaise;
+            return t;
+          }, 0);
+          expect(potBalance(s, pot.id)).toBe(sum);
+        }
+      }),
+    );
+  });
+
+  it("removing a payment recomputes the day, and recomputing twice changes nothing", () => {
+    let s = emptyDay();
+    s = pay(s, "a", 200, NOON);
+    s = pay(s, "b", 500, NOON + 1);
+    // With "a" gone, "b" must now fill the ₹300 essentials first.
+    s = reducer(s, { type: "remove", id: "a" });
+    const b = s.entries.find((e) => e.id === "b");
+    expect(b?.kind === "payout" && b.toEssentialsPaise).toBe(300 * R);
+    expect(movedToday(s)).toBe(200 * R);
+    const again = recomputeDay(s.entries, s.day, s.essentialsPaise, s.pots);
+    expect(again).toEqual(s.entries);
+  });
+
+  it("a withdrawal lowers the pot; more than the balance is refused", () => {
+    const s = seed();
+    const w = reducer(s, { type: "withdraw", id: "w", at: NOON, potId: "emergency", amountPaise: 140 * R, reason: "emergency" });
+    expect(potBalance(w, "emergency")).toBe(500 * R);
+    const tooMuch = reducer(s, { type: "withdraw", id: "w2", at: NOON, potId: "emergency", amountPaise: 641 * R, reason: "other" });
+    expect(tooMuch).toBe(s);
+  });
+
+  it("a new pot with a share takes money from the first pot only", () => {
+    let s = reducer(emptyDay(), { type: "createPot", pot: { id: "phone", label: "Phone", icon: "phone", goalPaise: 8000 * R, weight: 10 } });
+    s = pay(pay(s, "a", 300), "b", 1000, NOON + 1);
+    expect(s.entries.at(-1)).toMatchObject({ alloc: { bike: 400 * R, emergency: 200 * R, savings: 300 * R, phone: 100 * R } });
+  });
+});
+
+describe("working day", () => {
+  it("starts at 4 AM India time: a 1 AM payment belongs to the previous day", () => {
+    expect(dayKey(Date.UTC(2026, 9, 11, 19, 30))).toBe("2026-10-11"); // 12 Oct, 1:00 IST
+    expect(dayKey(Date.UTC(2026, 9, 11, 22, 30))).toBe("2026-10-12"); // 12 Oct, 4:00 IST
+  });
+
+  it("rollover starts a fresh day and keeps the pots", () => {
+    const s = seed();
+    const next = reducer(s, { type: "rollover", now: NOON + 86_400_000 });
+    expect(earnedToday(next)).toBe(0);
+    expect(totalInPots(next)).toBe(totalInPots(s));
+    expect(next.history.at(-1)).toEqual({ day: s.day, movedPaise: 430 * R });
+    expect(reducer(next, { type: "rollover", now: NOON + 86_400_000 })).toBe(next);
   });
 });
