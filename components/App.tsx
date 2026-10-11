@@ -87,8 +87,8 @@ function Shell() {
   const showPotDetail = tab === "pots" && potId && state.pots.some((p) => p.id === potId);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-canvas min-[481px]:border-x min-[481px]:border-line">
-      <p role="note" translate="no" className="sticky top-0 z-[60] bg-ink px-4 py-1.5 text-center text-xs font-semibold leading-normal text-white">
+    <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-canvas">
+      <p role="note" translate="no" className="chrome-dark sticky top-0 z-[60] px-4 pb-1.5 pt-[calc(0.375rem+env(safe-area-inset-top))] text-center text-xs font-semibold leading-normal text-lime">
         {t("demo.ribbon")}
       </p>
 
@@ -103,7 +103,7 @@ function Shell() {
         <>
           <Header onMenu={() => setSheet({ kind: "menu" })} />
 
-          <main className="flex-1 pb-[calc(10rem+env(safe-area-inset-bottom))]">
+          <main className="flex-1 pb-[calc(11.5rem+env(safe-area-inset-bottom))]">
             {tab === "home" && <Home onOpenEntry={(id) => setSheet({ kind: "entry", id })} />}
             {tab === "pots" &&
               (showPotDetail ? (
@@ -120,11 +120,12 @@ function Shell() {
             {tab === "loan" && <Loan />}
           </main>
 
-          <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 bg-card shadow-bar">
+          {/* Centred with inset + auto margins (not translate), so older WebViews lay it out right. */}
+          <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[480px]">
             {tab !== "loan" && (
-              <div className={`grid gap-2 px-4 pb-2 pt-3 ${tab === "home" ? "grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]" : "grid-cols-1"}`}>
+              <div className={`action-fade grid gap-2 px-4 pb-2 pt-6 ${tab === "home" ? "grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]" : "grid-cols-1"}`}>
                 {tab === "home" && (
-                  <SecondaryButton onClick={() => setSheet({ kind: "spend" })} className="!min-h-14 whitespace-nowrap !px-2" icon={Minus} ariaLabel={t("action.spent")}>
+                  <SecondaryButton onClick={() => setSheet({ kind: "spend" })} className="!min-h-14 whitespace-nowrap !px-2 shadow-card" icon={Minus} ariaLabel={t("action.spent")}>
                     {t("action.spentShort")}
                   </SecondaryButton>
                 )}
@@ -133,29 +134,28 @@ function Shell() {
                 </PrimaryButton>
               </div>
             )}
-            <nav aria-label="Main" className="pb-safe border-t border-line">
-              <ul className="grid grid-cols-3">
-                {TABS.map(({ id, key, Icon }) => {
-                  const active = tab === id;
-                  return (
-                    <li key={id}>
-                      <button
-                        type="button"
-                        aria-current={active ? "page" : undefined}
-                        onClick={() => goTab(id)}
-                        className={`press relative flex min-h-16 w-full flex-col items-center justify-center gap-0.5 text-sm ${active ? "font-bold text-green-700" : "font-medium text-muted"}`}
-                      >
-                        {active && <span aria-hidden className="absolute inset-x-6 top-0 h-[3px] rounded-b-full bg-green-700" />}
-                        <span className={`grid h-8 w-14 place-items-center rounded-full ${active ? "bg-green-50" : ""}`}>
+            <div className={`px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] ${tab === "loan" ? "action-fade pt-6" : "bg-canvas"}`}>
+              <nav aria-label="Main" className="chrome-dark rounded-[22px] p-1.5 shadow-bar">
+                <ul className="grid grid-cols-3 gap-1">
+                  {TABS.map(({ id, key, Icon }) => {
+                    const active = tab === id;
+                    return (
+                      <li key={id}>
+                        <button
+                          type="button"
+                          aria-current={active ? "page" : undefined}
+                          onClick={() => goTab(id)}
+                          className={`press flex min-h-14 w-full flex-col items-center justify-center gap-0.5 rounded-[18px] text-sm ${active ? "bg-lime font-extrabold text-night" : "font-medium text-on-dark-3"}`}
+                        >
                           <Icon size={22} strokeWidth={active ? 2.5 : 2} aria-hidden />
-                        </span>
-                        {t(key)}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
+                          {t(key)}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </div>
           </div>
 
           <ToastHost withActionBar={tab !== "loan"} />
@@ -185,7 +185,7 @@ function Header({ onMenu }: { onMenu: () => void }) {
   const { state, dispatch, t } = useSambhal();
   return (
     <header className="flex items-center gap-3 px-4 pb-1 pt-3">
-      <span aria-hidden className="grid h-10 w-10 place-items-center rounded-xl bg-green-700 text-lg font-extrabold text-white">
+      <span aria-hidden className="chrome-dark grid h-10 w-10 place-items-center rounded-xl text-lg font-extrabold text-lime">
         ₹
       </span>
       <p className="flex-1 text-lg font-extrabold text-ink" translate="no">
@@ -195,11 +195,11 @@ function Header({ onMenu }: { onMenu: () => void }) {
         type="button"
         onClick={() => dispatch({ type: "setLang", lang: state.lang === "hi" ? "en" : "hi" })}
         aria-label={t("lang.switch")}
-        className="press grid min-h-12 min-w-12 place-items-center rounded-xl border-2 border-line-strong px-3 text-base font-bold text-ink"
+        className="press grid min-h-12 min-w-12 place-items-center rounded-full bg-card px-4 text-base font-bold text-ink shadow-card"
       >
         {t("lang.short")}
       </button>
-      <button type="button" onClick={onMenu} aria-label={t("menu.open")} className="press grid h-12 w-12 place-items-center rounded-xl text-ink-2">
+      <button type="button" onClick={onMenu} aria-label={t("menu.open")} className="press grid h-12 w-12 place-items-center rounded-full bg-card text-ink shadow-card">
         <MoreHorizontal size={24} aria-hidden />
       </button>
     </header>

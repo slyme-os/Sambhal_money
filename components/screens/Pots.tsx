@@ -21,13 +21,17 @@ export function Pots({ onOpenPot, onNewPot, onOpenEntry }: { onOpenPot: (id: str
   const today = movedToday(state);
 
   return (
-    <div className="screen-in space-y-4 px-4 pt-3">
-      <MoneyCard label={t("pots.total")}>
-        <p className="text-base font-semibold text-ink-2">{t("pots.total")}</p>
-        <div className="mt-2">
-          <BigNumber paise={totalInPots(state)} size="lg" tone="green" />
+    <div className="screen-in space-y-4 px-4 pt-2">
+      <MoneyCard tone="lux" label={t("pots.total")} className="pt-6">
+        <p className="text-base font-semibold text-on-dark-2">{t("pots.total")}</p>
+        <div className="mt-3">
+          <BigNumber paise={totalInPots(state)} size="hero" tone="lime" />
         </div>
-        {today > 0 && <p className="money mt-2 text-base font-semibold text-green-700">{t("pots.todayPlus", { amount: formatINR(today) })}</p>}
+        {today > 0 && (
+          <p className="money mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#1d3a29] px-3 py-1 text-sm font-bold text-slime">
+            {t("pots.todayPlus", { amount: formatINR(today) })}
+          </p>
+        )}
       </MoneyCard>
 
       <section aria-label={t("pots.title")} className="space-y-3">
@@ -62,21 +66,21 @@ function Chart({ state }: { state: State }) {
   const days = chartDays(state);
   const max = Math.max(1, ...days.map((d) => d.movedPaise));
   return (
-    <section aria-label={t("pots.chart")} className="rounded-[var(--radius-card)] bg-card p-4 shadow-card">
-      <h2 className="text-base font-bold text-ink">{t("pots.chart")}</h2>
+    <section aria-label={t("pots.chart")} className="lux-card rounded-[var(--radius-card)] p-4">
+      <h2 className="text-base font-bold text-on-dark">{t("pots.chart")}</h2>
       <div className="mt-4 flex h-28 items-end gap-[3px]" role="img" aria-label={t("pots.chartLabel", { amount: formatINR(days.at(-1)?.movedPaise ?? 0) })}>
         {days.map((d, i) => (
           <div
             key={`${d.label}-${i}`}
-            className={`flex-1 rounded-t-[3px] ${d.today ? "bg-ink" : d.movedPaise ? "bg-green-600" : "bg-green-100"}`}
+            className={`flex-1 rounded-t-[3px] ${d.today ? "bg-lime" : d.movedPaise ? "bg-slime" : "bg-[#24402f]"}`}
             style={{ height: `${Math.max(4, (d.movedPaise / max) * 100)}%` }}
             title={`${d.label}: ${formatINR(d.movedPaise)}`}
           />
         ))}
       </div>
-      <p className="mt-3 flex gap-4 text-sm text-ink-2">
-        <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-green-600" />{t("pots.chartPast")}</span>
-        <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-ink" />{t("pots.chartToday")}</span>
+      <p className="mt-3 flex gap-4 text-sm text-on-dark-2">
+        <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-slime" />{t("pots.chartPast")}</span>
+        <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-lime" />{t("pots.chartToday")}</span>
       </p>
     </section>
   );
@@ -102,21 +106,21 @@ export function PotDetail({ potId, onBack, onEdit, onWithdraw, onOpenEntry }: {
         <TextButton icon={Pencil} onClick={onEdit}>{t("pot.edit")}</TextButton>
       </div>
 
-      <MoneyCard label={name}>
+      <MoneyCard tone="lux" label={name} className="pt-6">
         <div className="flex items-center gap-3">
           <PotGlyph icon={pot.icon} size="lg" />
-          <h1 className="text-xl font-bold text-ink">{name}</h1>
+          <h1 className="text-xl font-bold text-on-dark">{name}</h1>
         </div>
-        <p className="mt-4 text-sm font-medium text-ink-2">{t("pot.balance")}</p>
-        <BigNumber paise={balance} size="lg" tone="green" />
-        <p className="mt-1 text-base text-ink-2">{t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}</p>
-        <div className="mt-3">
-          <Progress value={balance / pot.goalPaise} label={name} />
+        <p className="mt-5 text-sm font-medium text-on-dark-2">{t("pot.balance")}</p>
+        <BigNumber paise={balance} size="hero" tone="lime" />
+        <p className="mt-2 text-base text-on-dark-2">{t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}</p>
+        <div className="mt-4">
+          <Progress value={balance / pot.goalPaise} tone="dark" label={name} />
         </div>
-        <p className="mt-2 text-sm font-semibold text-ink">
+        <p className="mt-2 text-sm font-semibold text-on-dark">
           {left === 0 ? t("pots.reached") : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(etaDays(state, pot), t)}`}
         </p>
-        <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">
+        <p className="mt-4 rounded-xl bg-[#1d3a29] px-3 py-2 text-sm text-on-dark-2">
           {isFirst ? t("pot.shareRest", { pct: share }) : t("pot.share", { pct: share })} · {t("pot.shareExample", { n: share })}
         </p>
       </MoneyCard>

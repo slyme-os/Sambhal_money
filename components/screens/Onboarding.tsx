@@ -30,7 +30,7 @@ export function Onboarding() {
   const next = () => (step < 4 ? setStep(step + 1) : finish());
 
   return (
-    <div className="flex min-h-[calc(100dvh-2rem)] flex-col px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-2">
+    <div className="flex min-h-[calc(100vh-2rem)] flex-col px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-2">
       <div className="flex min-h-12 items-center justify-between">
         {step > 1 ? (
           <TextButton icon={ArrowLeft} tone="muted" onClick={() => setStep(step - 1)} className="-ml-3">{t("action.back")}</TextButton>
@@ -38,7 +38,7 @@ export function Onboarding() {
           <button
             type="button"
             onClick={() => dispatch({ type: "setLang", lang: state.lang === "hi" ? "en" : "hi" })}
-            className="press min-h-12 rounded-xl border-2 border-line-strong px-3 text-base font-bold text-ink"
+            className="press min-h-12 rounded-full bg-card px-4 text-base font-bold text-ink shadow-card"
           >
             {t("lang.switch")}
           </button>
@@ -48,7 +48,7 @@ export function Onboarding() {
 
       <div className="mt-2 flex gap-1.5" aria-label={t("ob.step", { n: step })} role="img">
         {[1, 2, 3, 4].map((n) => (
-          <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-green-700" : "bg-line"}`} />
+          <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-night" : "bg-line"}`} />
         ))}
       </div>
       <p className="mt-2 text-sm font-semibold text-muted">{t("ob.step", { n: step })}</p>
@@ -66,7 +66,7 @@ export function Onboarding() {
             <Hero icons={[Landmark, ShieldCheck]} />
             <h1 className="mt-6 text-[28px] font-extrabold leading-tight text-ink">{t("ob.2.title")}</h1>
             <p className="mt-3 text-lg text-ink-2">{t("ob.2.body")}</p>
-            <div className="mt-5 space-y-2 rounded-2xl bg-green-50 p-4">
+            <div className="mt-5 space-y-2">
               <TrustBadge icon={Landmark}>{t("trust.bank")}</TrustBadge>
               <TrustBadge icon={ShieldCheck}>{t("trust.confirm")}</TrustBadge>
               <TrustBadge icon={ShieldCheck}>{t("ob.2.noLend")}</TrustBadge>
@@ -91,9 +91,9 @@ export function Onboarding() {
                       setPotId(p.id);
                       setGoal(p.goalPaise);
                     }}
-                    className={`press flex min-h-16 w-full items-center gap-3 rounded-2xl border-2 px-4 text-left ${sel ? "border-green-700 bg-green-50" : "border-transparent bg-card shadow-card"}`}
+                    className={`press flex min-h-16 w-full items-center gap-3 rounded-2xl border-2 px-4 text-left ${sel ? "border-night bg-lime" : "border-transparent bg-card shadow-card"}`}
                   >
-                    <Icon size={24} className="text-green-700" aria-hidden />
+                    <Icon size={24} className={sel ? "text-night" : "text-green-700"} aria-hidden />
                     <span className="flex-1 text-lg font-bold text-ink">{potName(p, t)}</span>
                   </button>
                 );
@@ -121,7 +121,7 @@ export function Onboarding() {
                   type="button"
                   aria-pressed={essentials === p}
                   onClick={() => setEssentials(p)}
-                  className={`press min-h-16 rounded-2xl border-2 text-2xl font-extrabold ${essentials === p ? "border-green-700 bg-green-50 text-green-800" : "border-transparent bg-card text-ink shadow-card"}`}
+                  className={`press min-h-16 rounded-2xl border-2 text-2xl font-extrabold ${essentials === p ? "border-night bg-lime text-night" : "border-transparent bg-card text-ink shadow-card"}`}
                 >
                   <Money paise={p} />
                 </button>
@@ -141,9 +141,9 @@ export function Onboarding() {
 
 function Hero({ icons }: { icons: React.ComponentType<{ size?: number; strokeWidth?: number }>[] }) {
   return (
-    <div aria-hidden className="flex h-32 items-center justify-center gap-3 rounded-[var(--radius-card)] bg-green-50">
+    <div aria-hidden className="lux-card flex h-40 items-center justify-center gap-3 rounded-[var(--radius-card)]">
       {icons.map((Icon, i) => (
-        <span key={i} className={`grid place-items-center rounded-2xl ${i === Math.floor(icons.length / 2) ? "h-20 w-20 bg-green-700 text-white" : "h-14 w-14 bg-card text-green-700"}`}>
+        <span key={i} className={`grid place-items-center rounded-2xl ${i === Math.floor(icons.length / 2) ? "lime-tile text-night btn-glow h-20 w-20" : "h-14 w-14 bg-[#1d3a29] text-slime"}`}>
           <Icon size={i === Math.floor(icons.length / 2) ? 40 : 28} strokeWidth={2} />
         </span>
       ))}

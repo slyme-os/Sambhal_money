@@ -13,6 +13,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Night forest behind the system bars, matching the app's dark ribbon and nav. -->
+        <item name="android:windowBackground">@color/sambhal_night</item>
+        <item name="android:statusBarColor">@color/sambhal_night</item>
+        <item name="android:navigationBarColor">@color/sambhal_night</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
 

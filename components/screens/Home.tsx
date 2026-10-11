@@ -25,23 +25,26 @@ export function Home({ onOpenEntry }: { onOpenEntry: (id: string) => void }) {
   const over = safe < 0;
 
   return (
-    <div className="screen-in space-y-4 px-4 pt-3">
-      <MoneyCard tone={over ? "red" : "card"} label={t("home.safe")}>
-        <p className="text-base font-semibold text-ink-2">{t("home.safe")}</p>
-        <div className="mt-2">
-          <BigNumber paise={over ? -safe : safe} sign={over ? "-" : undefined} tone={over ? "red" : earned === 0 ? "ink" : "green"} />
+    <div className="screen-in space-y-4 px-4 pt-2">
+      <MoneyCard tone={over ? "luxAlert" : "lux"} label={t("home.safe")} className="pb-6 pt-6">
+        <div className="flex items-center justify-between">
+          <p className="text-base font-semibold text-on-dark-2">{t("home.safe")}</p>
+          <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${over ? "bg-coral" : "bg-slime"}`} />
+        </div>
+        <div className="mt-3">
+          <BigNumber paise={over ? -safe : safe} sign={over ? "-" : undefined} tone={over ? "coral" : earned === 0 ? "white" : "lime"} />
         </div>
         {earned === 0 ? (
-          <p className="mt-3 text-sm text-ink-2">{t("home.notYet", { total: formatINR(state.essentialsPaise) })}</p>
+          <p className="mt-4 text-sm text-on-dark-2">{t("home.notYet", { total: formatINR(state.essentialsPaise) })}</p>
         ) : over ? (
-          <div className="mt-3">
-            <p className="text-base font-bold text-red-700">{t("home.over", { amount: formatINR(-safe) })}</p>
-            <p className="text-sm text-red-700">{t("home.overHint")}</p>
+          <div className="mt-4">
+            <p className="text-base font-bold text-coral">{t("home.over", { amount: formatINR(-safe) })}</p>
+            <p className="text-sm text-on-dark-2">{t("home.overHint")}</p>
           </div>
         ) : (
-          <div className="mt-4">
-            <Progress value={setAside ? safe / setAside : 0} tone="amber" label={t("home.safe")} />
-            <p className="mt-2 text-sm font-medium text-amber-700">{t("home.safeOf", { total: formatINR(setAside) })}</p>
+          <div className="mt-5">
+            <Progress value={setAside ? safe / setAside : 0} tone="amberDark" label={t("home.safe")} />
+            <p className="mt-2 text-sm font-semibold text-amber-300">{t("home.safeOf", { total: formatINR(setAside) })}</p>
           </div>
         )}
       </MoneyCard>
@@ -82,12 +85,12 @@ export function Home({ onOpenEntry }: { onOpenEntry: (id: string) => void }) {
 function Stat({ icon, label, paise }: { icon: React.ReactNode; label: string; paise: number }) {
   return (
     <div className="rounded-[var(--radius-card)] bg-card p-4 shadow-card">
-      <dt className="flex items-center gap-1.5 text-sm font-medium text-ink-2">
-        <span className="text-green-700">{icon}</span>
-        {label}
+      <dt className="flex items-start gap-2 text-sm font-medium leading-snug text-ink-2">
+        <span className="lime-tile text-night grid h-7 w-7 shrink-0 place-items-center rounded-lg">{icon}</span>
+        <span className="pt-0.5">{label}</span>
       </dt>
-      <dd className="mt-1">
-        <Money paise={paise} className="text-2xl font-extrabold text-ink" />
+      <dd className="mt-2">
+        <Money paise={paise} className="text-[26px] font-extrabold text-ink" />
       </dd>
     </div>
   );

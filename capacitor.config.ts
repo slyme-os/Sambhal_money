@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   appId: "app.sambhal.money",
   appName: "Sambhal",
   webDir: "out",
-  backgroundColor: "#f5f8f6",
+  backgroundColor: "#0a1a11",
   android: {
     // Plain https://localhost origin; localStorage persists across launches.
     allowMixedContent: false,
@@ -16,13 +16,15 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 600,
       launchAutoHide: true,
-      backgroundColor: "#17593b",
+      backgroundColor: "#0a1a11",
       showSpinner: false,
     },
-    StatusBar: {
-      backgroundColor: "#0f1f17",
+    // Edge-to-edge: the dark ribbon and nav draw behind the system bars; the web app
+    // pads with env(safe-area-inset-*). Light icons over the dark chrome.
+    SystemBars: {
+      insetsHandling: "css",
+      initialViewportFitValueHint: "cover",
       style: "DARK",
-      overlaysWebView: false,
     },
   },
 };

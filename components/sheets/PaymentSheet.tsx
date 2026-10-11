@@ -92,9 +92,11 @@ export function PaymentSheet({ onClose }: { onClose: () => void }) {
 
       {step === "done" && (
         <div className="space-y-4">
-          <div className="flex flex-col items-center pt-2 text-center">
-            <CircleCheck size={48} className="text-green-700" strokeWidth={2} aria-hidden />
-            <p className="amount-split mt-2 text-2xl font-extrabold text-ink" aria-live="polite">
+          <div className="lux-card mt-2 flex flex-col items-center rounded-[var(--radius-card)] px-4 py-6 text-center">
+            <span className="lime-tile text-night btn-glow grid h-14 w-14 place-items-center rounded-full">
+              <CircleCheck size={32} strokeWidth={2.2} aria-hidden />
+            </span>
+            <p className="amount-split mt-3 text-2xl font-extrabold text-lime" aria-live="polite">
               {r.surplus > 0 ? t("pay.doneTitle", { amount: formatINR(r.surplus) }) : t("pay.doneNone", { amount: formatINR(r.toFloor) })}
             </p>
           </div>
@@ -102,7 +104,7 @@ export function PaymentSheet({ onClose }: { onClose: () => void }) {
             {rows.map((row, i) => {
               const Icon = row.icon!;
               return (
-                <li key={row.label} className={`flow-in flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 ${row.tone === "amber" ? "bg-amber-50" : "bg-green-50"}`} style={{ animationDelay: `${120 + i * 110}ms` }}>
+                <li key={row.label} className={`flow-in flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 ${row.tone === "amber" ? "bg-amber-50" : "bg-lime-50"}`} style={{ animationDelay: `${120 + i * 110}ms` }}>
                   <Icon size={20} aria-hidden className={row.tone === "amber" ? "text-amber-700" : "text-green-700"} />
                   <span className="flex-1 font-semibold text-ink">{row.label}</span>
                   <Money paise={row.paise} sign="+" className="text-lg font-extrabold text-green-700" />

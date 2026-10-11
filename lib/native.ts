@@ -1,7 +1,7 @@
 // Android (Capacitor) integration. Every function is a no-op in the browser, so the
 // web build behaves exactly as before.
 
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, SystemBars, SystemBarsStyle } from "@capacitor/core";
 
 export const isNative = () => Capacitor.isNativePlatform();
 
@@ -28,11 +28,8 @@ export function onBackButton(handler: () => boolean): () => void {
   };
 }
 
-/** Status bar matches the demo ribbon at the top of every screen. */
+/** Light status-bar icons over the dark ribbon at the top of every screen. */
 export function styleStatusBar(): void {
   if (!isNative()) return;
-  void import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
-    void StatusBar.setStyle({ style: Style.Dark });
-    void StatusBar.setBackgroundColor({ color: "#0f1f17" });
-  });
+  void SystemBars.setStyle({ style: SystemBarsStyle.Dark });
 }

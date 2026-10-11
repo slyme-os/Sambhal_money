@@ -26,7 +26,7 @@ export function Money({ paise, sign, className = "" }: { paise: number; sign?: "
 }
 
 const BIG = { hero: "text-[56px] min-[380px]:text-[64px]", lg: "text-[40px]", md: "text-[28px]" } as const;
-const TONE = { ink: "text-ink", green: "text-green-700", amber: "text-amber-700", red: "text-red-600" } as const;
+const TONE = { ink: "text-ink", green: "text-green-700", amber: "text-amber-700", red: "text-red-600", lime: "text-lime", coral: "text-coral", white: "text-on-dark" } as const;
 
 /** The number a screen is about. Extra bold, tabular, huge. */
 export function BigNumber({ paise, size = "hero", tone = "ink", sign }: { paise: number; size?: keyof typeof BIG; tone?: keyof typeof TONE; sign?: "+" | "-" }) {
@@ -35,8 +35,8 @@ export function BigNumber({ paise, size = "hero", tone = "ink", sign }: { paise:
 
 // ---------- surfaces ----------
 
-export function MoneyCard({ children, tone = "card", className = "", label }: { children: ReactNode; tone?: "card" | "green" | "amber" | "red"; className?: string; label?: string }) {
-  const bg = { card: "bg-card shadow-card", green: "bg-green-50", amber: "bg-amber-50", red: "bg-red-50" }[tone];
+export function MoneyCard({ children, tone = "card", className = "", label }: { children: ReactNode; tone?: "card" | "green" | "amber" | "red" | "lux" | "luxAlert"; className?: string; label?: string }) {
+  const bg = { card: "bg-card shadow-card", green: "bg-green-50", amber: "bg-amber-50", red: "bg-red-50", lux: "lux-card", luxAlert: "lux-card lux-card-alert" }[tone];
   return (
     <section aria-label={label} className={`rounded-[var(--radius-card)] p-5 ${bg} ${className}`}>
       {children}
@@ -53,10 +53,10 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
   );
 }
 
-export function Progress({ value, tone = "green", label }: { value: number; tone?: "green" | "amber" | "red"; label: string }) {
+export function Progress({ value, tone = "green", label }: { value: number; tone?: "green" | "amber" | "red" | "dark" | "amberDark"; label: string }) {
   const pct = Math.max(0, Math.min(1, value)) * 100;
-  const fill = { green: "bg-green-600", amber: "bg-amber-600", red: "bg-red-600" }[tone];
-  const track = { green: "bg-green-100", amber: "bg-amber-100", red: "bg-red-100" }[tone];
+  const fill = { green: "bar-lux", amber: "bg-amber-600", red: "bg-red-600", dark: "bar-lux-dark", amberDark: "bg-amber-300" }[tone];
+  const track = { green: "bg-[#e4ebda]", amber: "bg-amber-100", red: "bg-red-100", dark: "bg-[#24402f]", amberDark: "bg-[#24402f]" }[tone];
   return (
     <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`h-2.5 w-full overflow-hidden rounded-full ${track}`}>
       <div className={`bar-fill h-full rounded-full ${fill}`} style={{ width: `${pct}%` }} />
@@ -70,9 +70,15 @@ export function Ring({ value, size = 168, stroke = 12, children }: { value: numb
   const v = Math.max(0, Math.min(1, value));
   return (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+      <svg width={size} height={size} className="ring-rotate" aria-hidden>
+        <defs>
+          <linearGradient id="ring-lux" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#8edb4f" />
+            <stop offset="100%" stopColor="#ddf76a" />
+          </linearGradient>
+        </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--track)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--green)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v)} className="ring-fill" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#ring-lux)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v)} className="ring-fill" />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">{children}</div>
     </div>
@@ -87,9 +93,9 @@ export const POT_ICONS: Record<PotIcon, LucideIcon> = {
 
 export function PotGlyph({ icon, size = "md" }: { icon: PotIcon; size?: "md" | "lg" }) {
   const Icon = POT_ICONS[icon];
-  const box = size === "lg" ? "h-14 w-14 rounded-2xl" : "h-12 w-12 rounded-xl";
+  const box = size === "lg" ? "lime-tile text-night h-14 w-14 rounded-2xl" : "h-12 w-12 rounded-2xl bg-lime-50 text-green-700";
   return (
-    <span aria-hidden className={`grid shrink-0 place-items-center bg-green-50 text-green-700 ${box}`}>
+    <span aria-hidden className={`grid shrink-0 place-items-center ${box}`}>
       <Icon size={size === "lg" ? 28 : 24} strokeWidth={2} />
     </span>
   );
@@ -152,7 +158,7 @@ type BtnProps = { children: ReactNode; onClick?: () => void; disabled?: boolean;
 /** The one primary action on a screen: lime fill, ink text, 56px. */
 export function PrimaryButton({ children, onClick, disabled, type = "button", className = "", icon: Icon }: BtnProps) {
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className={`press flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-lime px-5 text-lg font-bold text-ink active:bg-lime-press disabled:bg-surface disabled:text-muted ${className}`}>
+    <button type={type} onClick={onClick} disabled={disabled} className={`press flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-lime px-5 text-lg font-extrabold text-night active:bg-lime-press disabled:bg-surface disabled:text-muted ${disabled ? "" : "btn-glow"} ${className}`}>
       {Icon && <Icon size={22} strokeWidth={2.4} aria-hidden />}
       {children}
     </button>
@@ -161,7 +167,7 @@ export function PrimaryButton({ children, onClick, disabled, type = "button", cl
 
 export function SecondaryButton({ children, onClick, disabled, type = "button", className = "", icon: Icon, ariaLabel }: BtnProps) {
   return (
-    <button type={type} onClick={onClick} disabled={disabled} aria-label={ariaLabel} className={`press flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-700 bg-card px-5 text-base font-bold text-green-700 disabled:border-line disabled:text-muted ${className}`}>
+    <button type={type} onClick={onClick} disabled={disabled} aria-label={ariaLabel} className={`press flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-night bg-card px-5 text-base font-bold text-night disabled:border-line disabled:text-muted ${className}`}>
       {Icon && <Icon size={20} strokeWidth={2.2} aria-hidden />}
       {children}
     </button>
@@ -185,7 +191,7 @@ export function Chip({ children, selected, onClick, label }: { children: ReactNo
       aria-pressed={selected}
       aria-label={label}
       onClick={onClick}
-      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-green-700 bg-green-50 text-green-800" : "border-transparent bg-surface text-ink"}`}
+      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-night bg-lime text-night" : "border-transparent bg-card text-ink shadow-card"}`}
     >
       {children}
     </button>
@@ -197,7 +203,7 @@ export function Chip({ children, selected, onClick, label }: { children: ReactNo
 /** One money movement: what, where, how much, in which direction. */
 export function TransactionRow({ kind, title, sub, paise, onClick }: { kind: "in" | "out" | "withdraw"; title: string; sub: string; paise: number; onClick?: () => void }) {
   const Icon = kind === "in" ? ArrowDownLeft : kind === "out" ? ArrowUpRight : Landmark;
-  const tile = kind === "in" ? "bg-green-50 text-green-700" : kind === "out" ? "bg-amber-50 text-amber-700" : "bg-surface text-ink-2";
+  const tile = kind === "in" ? "bg-lime-50 text-green-700" : kind === "out" ? "bg-amber-50 text-amber-700" : "bg-surface text-ink-2";
   const inner = (
     <>
       <span aria-hidden className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${tile}`}>
@@ -223,7 +229,7 @@ export function TransactionRow({ kind, title, sub, paise, onClick }: { kind: "in
 
 export function TrustBadge({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
   return (
-    <p className="flex items-center gap-2 text-sm font-medium text-ink-2">
+    <p className="flex items-center gap-2 rounded-2xl bg-lime-50 px-3 py-2.5 text-sm font-semibold text-ink-2">
       <Icon size={18} strokeWidth={2.2} className="shrink-0 text-green-700" aria-hidden />
       <span>{children}</span>
     </p>
@@ -233,7 +239,7 @@ export function TrustBadge({ icon: Icon, children }: { icon: LucideIcon; childre
 export function EmptyState({ icon: Icon, title, body, action }: { icon: LucideIcon; title: string; body: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center rounded-[var(--radius-card)] bg-card px-5 py-7 text-center shadow-card">
-      <span aria-hidden className="grid h-14 w-14 place-items-center rounded-2xl bg-green-50 text-green-700">
+      <span aria-hidden className="lime-tile text-night grid h-14 w-14 place-items-center rounded-2xl">
         <Icon size={28} strokeWidth={2} />
       </span>
       <p className="mt-3 text-lg font-bold text-ink">{title}</p>
@@ -261,8 +267,8 @@ export function Sheet({ onClose, label, children }: { onClose: () => void; label
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={label}>
-      <button type="button" aria-label={t("action.close")} onClick={onClose} className="backdrop-in absolute inset-0 bg-ink/40" />
-      <div ref={panel} tabIndex={-1} className="sheet-in relative max-h-[92dvh] w-full max-w-[480px] overflow-y-auto rounded-t-[var(--radius-sheet)] bg-card px-5 pb-6 pt-2 shadow-sheet outline-none">
+      <button type="button" aria-label={t("action.close")} onClick={onClose} className="backdrop-in backdrop absolute inset-0" />
+      <div ref={panel} tabIndex={-1} className="sheet-in relative max-h-[92vh] w-full max-w-[480px] overflow-y-auto rounded-t-[var(--radius-sheet)] bg-card px-5 pb-6 pt-2 shadow-sheet outline-none">
         <div className="flex items-center justify-between">
           <span aria-hidden className="mx-auto my-2 h-1.5 w-10 rounded-full bg-line" />
         </div>
@@ -297,7 +303,7 @@ export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, o
         <ol className="space-y-2">
           {rows.map((r, i) => {
             const Icon = r.icon;
-            const bg = r.tone === "amber" ? "bg-amber-50" : r.tone === "green" ? "bg-green-50" : "bg-surface";
+            const bg = r.tone === "amber" ? "bg-amber-50" : r.tone === "green" ? "bg-lime-50" : "bg-surface";
             return (
               <li key={r.label} className={`flow-in flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 ${bg}`} style={{ animationDelay: `${i * 90}ms` }}>
                 {Icon && <Icon size={20} strokeWidth={2.2} aria-hidden className={r.tone === "amber" ? "text-amber-700" : "text-green-700"} />}
@@ -353,7 +359,7 @@ export function Keypad({ value, onChange, max = 5 }: { value: string; onChange: 
           type="button"
           onClick={() => press(k)}
           aria-label={k === "del" ? t("action.remove") : k}
-          className="press money grid h-14 place-items-center rounded-2xl bg-surface text-2xl font-bold text-ink active:bg-green-100"
+          className="press money grid h-14 place-items-center rounded-2xl bg-card text-2xl font-bold text-ink shadow-card active:bg-lime-50"
         >
           {k === "del" ? <Delete size={24} aria-hidden /> : k}
         </button>
@@ -377,8 +383,8 @@ export function ToastHost({ withActionBar }: { withActionBar: boolean }) {
   const { toast, dismissToast, t } = useSambhal();
   if (!toast) return null;
   return (
-    <div className={`pointer-events-none fixed inset-x-0 z-[45] flex justify-center px-4 ${withActionBar ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom))]" : "bottom-[calc(5rem+env(safe-area-inset-bottom))]"}`}>
-      <div role="status" key={toast.id} className={`toast-in pointer-events-auto flex min-h-14 w-full max-w-[448px] items-center gap-3 rounded-2xl px-4 py-2 shadow-sheet ${toast.tone === "alert" ? "bg-red-700 text-white" : "bg-ink text-white"}`}>
+    <div className={`pointer-events-none fixed inset-x-0 z-[45] flex justify-center px-4 ${withActionBar ? "bottom-[calc(10.5rem+env(safe-area-inset-bottom))]" : "bottom-[calc(6rem+env(safe-area-inset-bottom))]"}`}>
+      <div role="status" key={toast.id} className={`toast-in pointer-events-auto flex min-h-14 w-full max-w-[448px] items-center gap-3 rounded-2xl px-4 py-2 shadow-sheet ${toast.tone === "alert" ? "bg-red-700 text-white" : "chrome-dark text-white"}`}>
         <span className="flex-1 text-base font-medium">{toast.message}</span>
         {toast.undo && (
           <button

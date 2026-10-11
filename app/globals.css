@@ -1,51 +1,72 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+/* Scan only the app's own code (not .claude/ skill data or docs) for classes. */
+@source "../app";
+@source "../components";
+@source "../lib";
 
 /*
- * Sambhal design tokens. Light only.
- * Signal logic: green = safe money, amber = set aside for essentials, red = shortfall.
- * Lime is the one accent: a fill behind dark ink, used only for the primary action.
- * Every text pair below is AA (4.5:1) or better; checked values in the comments.
+ * Sambhal design tokens: modern luxury. Light canvas, night-forest hero surfaces,
+ * lime yellow as the signature accent, slime green for money moving in.
+ * Signal logic: lime/slime = safe money, amber = set aside, coral/red = shortfall.
+ * Every text pair is AA (4.5:1) or better; checked values in the comments.
+ * Gradients and transforms are plain CSS (no oklab, color-mix, translate/rotate
+ * properties) so the app renders on older Android WebViews too.
  */
 @theme {
-  /* Neutrals */
-  --color-canvas: #f5f8f6;      /* page */
-  --color-card: #ffffff;        /* cards, sheets, nav */
-  --color-surface: #edf3ef;     /* keys, quiet chips, icon tiles */
-  --color-ink: #0f1f17;         /* 17.1:1 on card */
-  --color-ink-2: #34433a;       /* 10.5:1 on card */
-  --color-muted: #56655c;       /* 6.2:1 card · 5.8:1 canvas · 5.5:1 surface */
-  --color-line: #d3ded7;        /* decorative dividers only */
-  --color-line-strong: #6f8277; /* input borders, 3.9:1 (UI ≥ 3:1) */
+  /* Neutrals (light) */
+  --color-canvas: #f3f5ee;      /* page: warm, faintly lime */
+  --color-card: #ffffff;
+  --color-surface: #ebf0e4;     /* keys, quiet chips */
+  --color-ink: #0a1a11;         /* text */
+  --color-ink-2: #2f3f35;       /* 10:1 on canvas */
+  --color-muted: #56655c;       /* 5.6:1 on canvas */
+  --color-line: #dde4d6;        /* decorative dividers */
+  --color-line-strong: #6f8277; /* input borders, 3.9:1 */
 
-  /* Green — safe money, brand */
-  --color-green-50: #eef6f1;
-  --color-green-100: #dcede2;
-  --color-green-600: #1f6a43;
-  --color-green-700: #17593b;   /* 8.3:1 on card */
+  /* Night forest: luxury dark surfaces */
+  --color-night: #0a1a11;
+  --color-forest-900: #0f2a1b;
+  --color-forest-800: #163a26;
+  --color-on-dark: #ffffff;     /* 15:1 on forest-900 */
+  --color-on-dark-2: #c5d3c8;   /* 9.9:1 */
+  --color-on-dark-3: #a8bbae;   /* 7.6:1 */
+
+  /* Brand green (text and icons on light) + lime-tinted tints */
+  --color-green-50: #eef7dd;
+  --color-green-100: #ddefc4;
+  --color-green-600: #2f8a2a;
+  --color-green-700: #17593b;   /* 7.5:1 on green-50 */
   --color-green-800: #0f4229;   /* 9.4:1 on green-100 */
 
-  /* Lime — the primary action */
-  --color-lime: #d4e9a0;        /* ink on lime 13:1 */
-  --color-lime-press: #c5df85;
+  /* Lime yellow: the signature accent */
+  --color-lime: #ddf76a;        /* night on lime 15:1; lime on forest 12.9:1 */
+  --color-lime-press: #cbea4c;
+  --color-lime-50: #f4fad9;
 
-  /* Amber — set aside for essentials */
+  /* Slime green: positive movement on dark */
+  --color-slime: #8edb4f;       /* 9.1:1 on forest-900 */
+
+  /* Amber: set aside for essentials */
   --color-amber-50: #fff6e5;
   --color-amber-100: #fce7bd;
-  --color-amber-600: #a85a06;   /* 5.1:1 on card; bar on amber-100 4.2:1 */
-  --color-amber-700: #8a4a05;   /* 6.4:1 on amber-50 */
+  --color-amber-300: #f6c25b;   /* on dark, 9.4:1 */
+  --color-amber-600: #a85a06;
+  --color-amber-700: #8a4a05;
 
-  /* Red — shortfall */
+  /* Red: shortfall */
   --color-red-50: #fdf0ef;
   --color-red-100: #f9d9d6;
-  --color-red-600: #b42318;     /* 6.6:1 on card */
-  --color-red-700: #912018;     /* 7.8:1 on red-50 */
+  --color-red-600: #b42318;
+  --color-red-700: #912018;
+  --color-coral: #ff9a8b;       /* on dark, 7.5:1 */
 
-  --radius-card: 20px;
-  --radius-sheet: 24px;
+  --radius-card: 24px;
+  --radius-sheet: 28px;
 
-  --shadow-card: 0 1px 2px rgba(15, 31, 23, 0.06), 0 4px 12px -4px rgba(15, 31, 23, 0.08);
-  --shadow-bar: 0 -1px 0 rgba(15, 31, 23, 0.06), 0 -8px 24px -12px rgba(15, 31, 23, 0.16);
-  --shadow-sheet: 0 -12px 40px -12px rgba(15, 31, 23, 0.28);
+  --shadow-card: 0 1px 2px rgba(10, 26, 17, 0.05), 0 8px 24px -12px rgba(10, 26, 17, 0.14);
+  --shadow-bar: 0 -10px 30px -14px rgba(10, 26, 17, 0.25);
+  --shadow-sheet: 0 -16px 48px -16px rgba(10, 26, 17, 0.4);
+  --shadow-glow: 0 10px 28px -10px rgba(170, 214, 40, 0.75);
 
   --font-sans: var(--font-inter), var(--font-deva), system-ui, sans-serif;
 }
@@ -53,7 +74,7 @@
 /* Used by inline SVG. */
 :root {
   --green: #17593b;
-  --track: #dcede2;
+  --track: #24402f;
   color-scheme: light;
 }
 
@@ -63,7 +84,7 @@ html {
 }
 
 body {
-  background: var(--color-canvas);
+  background: var(--color-night);
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -167,3 +188,55 @@ html[lang="hi"] body {
     transition-duration: 1ms !important;
   }
 }
+
+/* ---------- luxury surfaces ---------- */
+
+/* Night-forest hero card with a lime and a slime glow in opposite corners. */
+.lux-card {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-on-dark);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(221, 247, 106, 0.22) 0%, rgba(221, 247, 106, 0) 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(142, 219, 79, 0.16) 0%, rgba(142, 219, 79, 0) 60%),
+    linear-gradient(160deg, #163a26 0%, #0f2a1b 45%, #0a1a11 100%);
+  box-shadow: 0 18px 40px -18px rgba(10, 26, 17, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.lux-card-alert {
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 154, 139, 0.22) 0%, rgba(255, 154, 139, 0) 55%),
+    linear-gradient(160deg, #3a1512 0%, #241010 55%, #160909 100%);
+}
+/* Fine grain line pattern for a premium card feel. */
+.lux-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, rgba(255, 255, 255, 0) 1px, rgba(255, 255, 255, 0) 9px);
+}
+.lux-card > * { position: relative; z-index: 1; }
+
+/* Lime tile: lime-yellow to slime gradient, used for highlights. */
+.lime-tile {
+  background: linear-gradient(135deg, #e7fb86 0%, #ddf76a 45%, #b5e85a 100%);
+}
+
+/* Progress fills: slime → lime. */
+.bar-lux { background: linear-gradient(90deg, #2f8a2a 0%, #6fbf3a 55%, #b8e34a 100%); }
+.bar-lux-dark { background: linear-gradient(90deg, #8edb4f 0%, #ddf76a 100%); }
+
+/* The primary action glows lime. */
+.btn-glow { box-shadow: var(--shadow-glow), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+
+/* Dark app chrome: ribbon, nav. */
+/* Background only: text colour comes from utilities on each element. */
+.chrome-dark { background: var(--color-night); }
+
+/* Fade under the floating action row so content doesn't clash with it. */
+.action-fade {
+  background: linear-gradient(180deg, rgba(243, 245, 238, 0) 0%, rgba(243, 245, 238, 0.92) 38%, #f3f5ee 100%);
+}
+
+.backdrop { background: rgba(10, 26, 17, 0.55); }
+.ring-rotate { transform: rotate(-90deg); }
