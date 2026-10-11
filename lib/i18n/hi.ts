@@ -146,7 +146,6 @@ export const hi: Record<MsgKey, string> = {
   "loan.sub": "यह स्क्रीन सिर्फ़ पात्रता दिखाती है। यहाँ कोई आवेदन नहीं है।",
   "loan.streak": "दिन लगातार बचत",
   "loan.streakLeft": "{goal} तक {n} दिन और",
-  "loan.saved": "कुल बचत",
   "loan.avg": "रोज़ की औसत कमाई",
   "loan.days": "काम के दिन",
   "loan.figures": "ये आँकड़े पात्रता देखने के लिए हैं।",

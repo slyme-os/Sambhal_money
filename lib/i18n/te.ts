@@ -147,7 +147,6 @@ export const te: Record<MsgKey, string> = {
   "loan.sub": "ఈ స్క్రీన్ అర్హతను మాత్రమే చూపిస్తుంది. ఇక్కడ దరఖాస్తు లేదు.",
   "loan.streak": "రోజులు వరుసగా పొదుపు",
   "loan.streakLeft": "{goal} కి ఇంకా {n} రోజులు",
-  "loan.saved": "మొత్తం పొదుపు",
   "loan.avg": "రోజువారీ సగటు",
   "loan.days": "పని రోజులు",
   "loan.figures": "ఈ అంకెలు అర్హత చూడడానికి వాడతారు.",

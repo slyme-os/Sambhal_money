@@ -147,7 +147,6 @@ export const bn: Record<MsgKey, string> = {
   "loan.sub": "এই স্ক্রিন শুধু যোগ্যতা দেখায়। এখানে কোনো আবেদন নেই।",
   "loan.streak": "দিন টানা সঞ্চয়",
   "loan.streakLeft": "{goal} পর্যন্ত আরও {n} দিন",
-  "loan.saved": "মোট সঞ্চয়",
   "loan.avg": "দিনের গড়",
   "loan.days": "কাজের দিন",
   "loan.figures": "এই সংখ্যাগুলো যোগ্যতা দেখতে ব্যবহার হয়।",

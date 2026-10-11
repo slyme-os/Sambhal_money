@@ -147,7 +147,6 @@ export const kn: Record<MsgKey, string> = {
   "loan.sub": "ಈ ಪರದೆ ಅರ್ಹತೆ ಮಾತ್ರ ತೋರಿಸುತ್ತದೆ. ಇಲ್ಲಿ ಅರ್ಜಿ ಹಾಕುವುದಿಲ್ಲ.",
   "loan.streak": "ದಿನ ಸತತ ಉಳಿತಾಯ",
   "loan.streakLeft": "{goal} ಕ್ಕೆ ಇನ್ನೂ {n} ದಿನ",
-  "loan.saved": "ಒಟ್ಟು ಉಳಿತಾಯ",
   "loan.avg": "ದಿನದ ಸರಾಸರಿ",
   "loan.days": "ಕೆಲಸದ ದಿನಗಳು",
   "loan.figures": "ಈ ಅಂಕಿಗಳನ್ನು ಅರ್ಹತೆ ನೋಡಲು ಬಳಸಲಾಗುತ್ತದೆ.",

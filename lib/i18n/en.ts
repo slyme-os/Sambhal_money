@@ -147,7 +147,6 @@ export const en = {
   "loan.sub": "This screen only shows eligibility. There is nothing to apply for here.",
   "loan.streak": "days saved in a row",
   "loan.streakLeft": "{n} more days to {goal}",
-  "loan.saved": "Total saved",
   "loan.avg": "Avg per day",
   "loan.days": "Days worked",
   "loan.figures": "These figures are used to check eligibility.",

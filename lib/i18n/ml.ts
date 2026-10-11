@@ -147,7 +147,6 @@ export const ml: Record<MsgKey, string> = {
   "loan.sub": "ഈ സ്ക്രീൻ യോഗ്യത മാത്രം കാണിക്കുന്നു. ഇവിടെ അപേക്ഷയില്ല.",
   "loan.streak": "ദിവസം തുടർച്ചയായ സമ്പാദ്യം",
   "loan.streakLeft": "{goal} ലേക്ക് ഇനി {n} ദിവസം",
-  "loan.saved": "ആകെ സമ്പാദ്യം",
   "loan.avg": "ദിവസ ശരാശരി",
   "loan.days": "ജോലി ദിവസങ്ങൾ",
   "loan.figures": "ഈ കണക്കുകൾ യോഗ്യത നോക്കാൻ ഉപയോഗിക്കുന്നു.",
