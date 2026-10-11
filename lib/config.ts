@@ -21,6 +21,7 @@ export const SOURCES = [
   { id: "rapido", label: "Rapido" },
   { id: "zepto", label: "Zepto" },
   { id: "cash", label: null },
+  { id: "other", label: null },
 ] as const;
 
 export type SourceId = (typeof SOURCES)[number]["id"];

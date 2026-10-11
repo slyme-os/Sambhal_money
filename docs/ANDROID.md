@@ -60,6 +60,33 @@ After any change to the web app, run `npm run android:sync` again.
 7. **Testing track first** — new personal developer accounts must run a closed test
    (at least 12 testers for 14 days) before production access.
 
+## SMS auto-capture (READ_SMS)
+
+The app reads bank / UPI SMS on the phone (opt-in) and suggests payments and spends in a
+"Found in your SMS" inbox. Nothing is added until the rider taps **Add**; payments still go
+through the usual preview-and-confirm.
+
+- Native part: `android/app/src/main/java/app/sambhal/money/SmsInboxPlugin.java` (only messages
+  with an amount and a credit/debit word are returned); parsing in `lib/smsParse.ts`
+  (tests in `tests/smsParse.test.ts`). The SMS text is never stored or uploaded, only the parsed
+  amount, direction, counterparty, time and a reference to avoid duplicates.
+- Checks happen when the app opens, when it returns to the foreground, and every 30 s while open.
+  Only today's messages (working day from 4 AM) are offered.
+- Turning it off (Options → "Turn off and delete SMS data") deletes the inbox and the seen list.
+
+**Google Play:** `READ_SMS` is a restricted permission. Sambhal's use matches Play's listed
+exception **"SMS-based money management (for example, apps that track and manage budget)"**.
+Before uploading a build with it you must:
+1. Fill the **Permissions Declaration Form** in Play Console (App content → Sensitive permissions),
+   choosing SMS-based money management as the core use, with a short video of the consent screen
+   and the inbox.
+2. Keep the in-app disclosure (the consent sheet) shown **before** the Android permission prompt.
+3. Describe SMS use in the privacy policy and the Data safety form (collected: no; processed on
+   device only).
+If Play rejects it, ship without the permission: remove the `READ_SMS` line from
+`AndroidManifest.xml`. Turning SMS capture on then shows "SMS access was not allowed", and riders
+keep adding payments by hand as before.
+
 ## Before a real release
 
 - Remove the demo ribbon and the sample data (`seedState` in `lib/ledger.ts`) so a new

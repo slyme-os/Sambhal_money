@@ -13,12 +13,15 @@ import { newId, useSambhal } from "@/lib/store";
 import { sweep } from "@/lib/sweep";
 import { AmountDisplay, Chip, ConfirmBody, Keypad, Money, POT_ICONS, PrimaryButton, Sheet, potName, type ConfirmRow } from "../ds";
 import { sourceLabel } from "../rows";
+import type { PaymentPrefill } from "./SmsSheet";
 
-export function PaymentSheet({ onClose }: { onClose: () => void }) {
+export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefill?: PaymentPrefill }) {
   const { state, dispatch, t, showToast } = useSambhal();
-  const [digits, setDigits] = useState(state.lastAmountPaise ? String(state.lastAmountPaise / 100) : "");
-  const [source, setSource] = useState<SourceId>(state.lastSource);
-  const [step, setStep] = useState<"amount" | "preview" | "done">("amount");
+  const initial = prefill?.amountPaise ?? state.lastAmountPaise;
+  const [digits, setDigits] = useState(initial ? String(Math.round(initial / 100)) : "");
+  const [source, setSource] = useState<SourceId>(prefill?.source ?? state.lastSource);
+  // From SMS, amount and source are already known: go straight to the preview.
+  const [step, setStep] = useState<"amount" | "preview" | "done">(prefill ? "preview" : "amount");
   const [entryId] = useState(() => newId("p"));
   const amount = digitsToPaise(digits);
 
@@ -32,7 +35,7 @@ export function PaymentSheet({ onClose }: { onClose: () => void }) {
   ];
 
   const confirm = () => {
-    dispatch({ type: "payout", id: entryId, at: Date.now(), amountPaise: amount, source });
+    dispatch({ type: "payout", id: entryId, at: prefill?.at ?? Date.now(), amountPaise: amount, source, smsRef: prefill?.smsRef });
     setStep("done");
   };
   const finish = () => {

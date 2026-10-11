@@ -7,18 +7,20 @@ import { useState } from "react";
 import { safeToSpend } from "@/lib/ledger";
 import { digitsToPaise, formatINR } from "@/lib/money";
 import { newId, useSambhal } from "@/lib/store";
-import { AmountDisplay, Keypad, PrimaryButton, Sheet } from "../ds";
+import type { ExpenseCategory } from "@/lib/ledger";
+import { AmountDisplay, CAT_ICONS, CATEGORIES, Chip, Keypad, PrimaryButton, Sheet } from "../ds";
 
 export function SpendSheet({ onClose }: { onClose: () => void }) {
   const { state, dispatch, t, showToast } = useSambhal();
   const [digits, setDigits] = useState("");
+  const [category, setCategory] = useState<ExpenseCategory | undefined>();
   const amount = digitsToPaise(digits);
   const safe = safeToSpend(state);
   const after = safe - amount;
 
   const save = () => {
     const id = newId("s");
-    dispatch({ type: "spend", id, at: Date.now(), amountPaise: amount });
+    dispatch({ type: "spend", id, at: Date.now(), amountPaise: amount, category });
     onClose();
     showToast({ message: t("spend.toast"), undo: () => dispatch({ type: "remove", id }) });
   };
@@ -35,6 +37,20 @@ export function SpendSheet({ onClose }: { onClose: () => void }) {
               ? t("spend.over", { amount: formatINR(-after) })
               : t("spend.left", { amount: formatINR(after) })}
         </p>
+        <div>
+          <p className="mb-2 text-sm font-semibold text-ink-2">{t("spend.category")}</p>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => {
+              const Icon = CAT_ICONS[c];
+              return (
+                <Chip key={c} selected={category === c} onClick={() => setCategory(category === c ? undefined : c)}>
+                  <Icon size={18} aria-hidden />
+                  {t(`cat.${c}`)}
+                </Chip>
+              );
+            })}
+          </div>
+        </div>
         <Keypad value={digits} onChange={setDigits} />
         <PrimaryButton disabled={!amount} onClick={save}>
           {amount ? t("action.save") : t("pay.enter")}

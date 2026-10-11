@@ -12,6 +12,21 @@ export function dayKey(ms: number): string {
   return ymd.format(new Date(ms - DAY_START_HOUR * 3_600_000));
 }
 
+/** When working day `key` starts (4 AM India time), in ms. */
+export function dayStart(key: string): number {
+  const [y, m, d] = key.split("-").map(Number);
+  return Date.UTC(y, m - 1, d) + (DAY_START_HOUR * 60 - 330) * 60_000;
+}
+
+/** "2:14 pm" in India time, in the rider's language but with everyday 0-9 digits. */
+export function timeLabel(ms: number, lang: string): string {
+  try {
+    return new Intl.DateTimeFormat(`${lang}-IN-u-nu-latn`, { hour: "numeric", minute: "2-digit", timeZone: TZ }).format(ms);
+  } catch {
+    return new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit", timeZone: TZ }).format(ms);
+  }
+}
+
 /** "11/10" style label for a day key. */
 export function dayLabel(key: string): string {
   const [, m, d] = key.split("-");

@@ -6,12 +6,12 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import {
-  ArrowDownLeft, ArrowUpRight, Bike, Coins, Delete, Gift, GraduationCap, HeartPulse, House,
-  Landmark, LifeBuoy, Smartphone, X, type LucideIcon,
+  ArrowDownLeft, ArrowUpRight, Bike, CircleEllipsis, Coins, Delete, Fuel, Gift, GraduationCap, HeartPulse, House,
+  Landmark, LifeBuoy, Send, Smartphone, UtensilsCrossed, Wrench, X, type LucideIcon,
 } from "lucide-react";
 import { formatINR } from "@/lib/money";
 import type { MsgKey, Vars } from "@/lib/i18n";
-import type { Pot, PotIcon } from "@/lib/ledger";
+import type { ExpenseCategory, Pot, PotIcon } from "@/lib/ledger";
 import { useSambhal } from "@/lib/store";
 
 // ---------- money ----------
@@ -89,6 +89,11 @@ export function Ring({ value, size = 168, stroke = 12, children }: { value: numb
 
 export const POT_ICONS: Record<PotIcon, LucideIcon> = {
   bike: Bike, shield: LifeBuoy, coins: Coins, phone: Smartphone, heart: HeartPulse, school: GraduationCap, gift: Gift, home: House,
+};
+
+export const CATEGORIES: ExpenseCategory[] = ["fuel", "food", "phone", "repair", "transfer", "other"];
+export const CAT_ICONS: Record<ExpenseCategory, LucideIcon> = {
+  fuel: Fuel, food: UtensilsCrossed, phone: Smartphone, repair: Wrench, transfer: Send, other: CircleEllipsis,
 };
 
 export function PotGlyph({ icon, size = "md" }: { icon: PotIcon; size?: "md" | "lg" }) {

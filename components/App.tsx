@@ -18,6 +18,7 @@ import { EntrySheet } from "./sheets/EntrySheet";
 import { LanguageSheet } from "./sheets/LanguageSheet";
 import { MenuSheet } from "./sheets/MenuSheet";
 import { PaymentSheet } from "./sheets/PaymentSheet";
+import { SmsSheet, type PaymentPrefill } from "./sheets/SmsSheet";
 import { PotSheet } from "./sheets/PotSheet";
 import { SpendSheet } from "./sheets/SpendSheet";
 import { WithdrawSheet } from "./sheets/WithdrawSheet";
@@ -25,7 +26,8 @@ import { WithdrawSheet } from "./sheets/WithdrawSheet";
 type Tab = "home" | "pots" | "loan";
 
 export type SheetState =
-  | { kind: "payment" }
+  | { kind: "payment"; prefill?: PaymentPrefill }
+  | { kind: "sms" }
   | { kind: "spend" }
   | { kind: "withdraw"; potId: string }
   | { kind: "pot"; potId?: string }
@@ -106,7 +108,7 @@ function Shell() {
           <Header onMenu={() => setSheet({ kind: "menu" })} onLanguage={() => setSheet({ kind: "language" })} />
 
           <main className="flex-1 pb-[calc(11.5rem+env(safe-area-inset-bottom))]">
-            {tab === "home" && <Home onOpenEntry={(id) => setSheet({ kind: "entry", id })} />}
+            {tab === "home" && <Home onOpenEntry={(id) => setSheet({ kind: "entry", id })} onOpenSms={() => setSheet({ kind: "sms" })} />}
             {tab === "pots" &&
               (showPotDetail ? (
                 <PotDetail
@@ -162,7 +164,8 @@ function Shell() {
 
           <ToastHost withActionBar={tab !== "loan"} />
 
-          {sheet?.kind === "payment" && <PaymentSheet onClose={close} />}
+          {sheet?.kind === "payment" && <PaymentSheet onClose={close} prefill={sheet.prefill} />}
+          {sheet?.kind === "sms" && <SmsSheet onClose={close} onAddPayment={(prefill) => setSheet({ kind: "payment", prefill })} />}
           {sheet?.kind === "spend" && <SpendSheet onClose={close} />}
           {sheet?.kind === "withdraw" && <WithdrawSheet potId={sheet.potId} onClose={close} />}
           {sheet?.kind === "pot" && <PotSheet potId={sheet.potId} onClose={close} />}
@@ -172,6 +175,7 @@ function Shell() {
             <MenuSheet
               onClose={close}
               onLanguage={() => setSheet({ kind: "language" })}
+              onSms={() => setSheet({ kind: "sms" })}
               onReset={() => {
                 dispatch({ type: "reset", now: Date.now() });
                 setPotId(null);

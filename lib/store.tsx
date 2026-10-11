@@ -7,6 +7,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { detectLang, isLang, translate, type MsgKey, type Vars } from "./i18n";
 import { isState, reducer, seedState, type Action, type Lang, type State } from "./ledger";
+import { hasSmsPermission, readMoneySms, smsSupported } from "./sms";
+import { dayStart } from "./time";
 
 const KEY = "sambhal:v1";
 
@@ -26,6 +28,8 @@ interface StoreValue {
   toast: Toast | null;
   showToast: (t: Omit<Toast, "id">) => void;
   dismissToast: () => void;
+  /** Reads new bank / UPI SMS into the inbox (Android, when SMS capture is on). */
+  scanSms: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -57,6 +61,35 @@ export function SambhalStore({ children }: { children: ReactNode }) {
   }, []);
   const dismissToast = useCallback(() => setToast(null), []);
 
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const scanSms = useCallback(async () => {
+    const s = stateRef.current;
+    if (!s.sms.enabled || !smsSupported() || !(await hasSmsPermission())) return;
+    // Start the next read from when this one began, so an SMS arriving mid-read isn't lost.
+    const started = Date.now();
+    try {
+      const txns = await readMoneySms(Math.max(s.sms.lastScanAt, dayStart(s.day)));
+      dispatch({ type: "smsFound", txns, scannedAt: started });
+    } catch {
+      /* permission revoked or inbox unreadable: try again next time */
+    }
+  }, []);
+
+  // SMS capture: check on open, on return to the app, and every 30s while it's open.
+  useEffect(() => {
+    if (!ready || !state.sms.enabled) return;
+    void scanSms();
+    const visible = () => document.visibilityState === "visible";
+    const onVisible = () => visible() && void scanSms();
+    document.addEventListener("visibilitychange", onVisible);
+    const timer = setInterval(onVisible, 30_000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      clearInterval(timer);
+    };
+  }, [ready, state.sms.enabled, scanSms]);
+
   // Load once, then roll the day over if the phone was closed past 4 AM.
   useEffect(() => {
     const saved = load();
@@ -87,8 +120,8 @@ export function SambhalStore({ children }: { children: ReactNode }) {
   }, [state.lang]);
 
   const value = useMemo(
-    () => ({ state, dispatch, ready, lang: state.lang, t, toast, showToast, dismissToast }),
-    [state, ready, t, toast, showToast, dismissToast],
+    () => ({ state, dispatch, ready, lang: state.lang, t, toast, showToast, dismissToast, scanSms }),
+    [state, ready, t, toast, showToast, dismissToast, scanSms],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

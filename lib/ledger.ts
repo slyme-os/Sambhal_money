@@ -8,6 +8,7 @@
 
 import { FLOOR_PAISE, type SourceId } from "./config";
 import { RUPEE } from "./money";
+import type { DetectedTxn, ExpenseCategory } from "./smsParse";
 import { sweep } from "./sweep";
 import { dayKey, dayLabel, daysBefore } from "./time";
 
@@ -15,6 +16,7 @@ export type { Lang } from "./i18n";
 import type { Lang } from "./i18n";
 export type PotIcon = "bike" | "shield" | "coins" | "phone" | "heart" | "school" | "gift" | "home";
 export type WithdrawReason = "repair" | "emergency" | "other";
+export type { ExpenseCategory };
 
 export interface Pot {
   id: string;
@@ -38,8 +40,9 @@ export type Entry =
       source: SourceId;
       toEssentialsPaise: number;
       alloc: Record<string, number>;
+      origin?: "sms";
     }
-  | { kind: "spend"; id: string; day: string; at: number; amountPaise: number }
+  | { kind: "spend"; id: string; day: string; at: number; amountPaise: number; category?: ExpenseCategory; origin?: "sms" }
   | { kind: "withdraw"; id: string; day: string; at: number; potId: string; amountPaise: number; reason: WithdrawReason };
 
 export interface DayTotal {
@@ -60,13 +63,32 @@ export interface State {
   history: DayTotal[];
   lastSource: SourceId;
   lastAmountPaise: number;
+  sms: SmsState;
 }
+
+/** SMS auto-capture. Only parsed fields are kept, never the message text. */
+export interface SmsState {
+  enabled: boolean;
+  /** Last time the inbox was read (ms); the next read starts here. */
+  lastScanAt: number;
+  /** Found in SMS, waiting for the rider to tap Add or Ignore. Newest first. */
+  pending: DetectedTxn[];
+  /** References already added or ignored, so the same SMS never comes back. */
+  seen: string[];
+}
+
+export const SMS_OFF: SmsState = { enabled: false, lastScanAt: 0, pending: [], seen: [] };
+const MAX_SEEN = 500;
 
 export type Action =
   | { type: "hydrate"; state: State }
   | { type: "rollover"; now: number }
-  | { type: "payout"; id: string; at: number; amountPaise: number; source: SourceId }
-  | { type: "spend"; id: string; at: number; amountPaise: number }
+  | { type: "payout"; id: string; at: number; amountPaise: number; source: SourceId; smsRef?: string }
+  | { type: "spend"; id: string; at: number; amountPaise: number; category?: ExpenseCategory; smsRef?: string }
+  | { type: "smsEnable" }
+  | { type: "smsDisable" }
+  | { type: "smsFound"; txns: DetectedTxn[]; scannedAt: number }
+  | { type: "smsDismiss"; ref: string }
   | { type: "withdraw"; id: string; at: number; potId: string; amountPaise: number; reason: WithdrawReason }
   | { type: "remove"; id: string }
   | { type: "createPot"; pot: Pot }
@@ -157,6 +179,13 @@ export function potBalance(s: State, potId: string): number {
 export function totalInPots(s: State): number {
   return s.pots.reduce((t, p) => t + potBalance(s, p.id), 0);
 }
+/** Today's spends by category, biggest first. */
+export function spendsByCategory(s: State): { category: ExpenseCategory; paise: number }[] {
+  const totals = new Map<ExpenseCategory, number>();
+  for (const e of todays(s)) if (e.kind === "spend") totals.set(e.category ?? "other", (totals.get(e.category ?? "other") ?? 0) + e.amountPaise);
+  return [...totals].map(([category, paise]) => ({ category, paise })).sort((a, b) => b.paise - a.paise);
+}
+
 /** Today's entries, newest first (what the "Today" list shows). */
 export function todayActivity(s: State) {
   return todays(s)
@@ -253,7 +282,19 @@ export function seedState(now: number, keep?: Partial<Pick<State, "lang" | "onbo
     history: seedHistory(day, FLOOR_PAISE),
     lastSource: "swiggy",
     lastAmountPaise: 380 * RUPEE,
+    sms: SMS_OFF,
   };
+}
+
+/** Fill in fields added after a phone first saved its state. */
+export function normalize(s: State): State {
+  return s.sms ? s : { ...s, sms: SMS_OFF };
+}
+
+/** Marks an SMS reference as handled: out of the inbox, never offered again. */
+function handled(sms: SmsState, ref?: string): SmsState {
+  if (!ref) return sms;
+  return { ...sms, pending: sms.pending.filter((t) => t.ref !== ref), seen: [...sms.seen.filter((r) => r !== ref), ref].slice(-MAX_SEEN) };
 }
 
 // ---------- reducer ----------
@@ -263,7 +304,7 @@ const isMoney = (n: number) => Number.isSafeInteger(n) && n > 0;
 export function reducer(s: State, a: Action): State {
   switch (a.type) {
     case "hydrate":
-      return a.state;
+      return normalize(a.state);
 
     case "rollover": {
       const today = dayKey(a.now);
@@ -284,13 +325,43 @@ export function reducer(s: State, a: Action): State {
         source: a.source,
         toEssentialsPaise: r.toFloor,
         alloc: allocate(r.surplus, s.pots),
+        ...(a.smsRef ? { origin: "sms" as const } : {}),
       };
-      return { ...s, entries: [...s.entries, entry], lastSource: a.source, lastAmountPaise: a.amountPaise };
+      // An SMS payment can be older than ones already added: replay the day in time order.
+      const entries = recomputeDay([...s.entries, entry], s.day, s.essentialsPaise, s.pots);
+      return { ...s, entries, lastSource: a.source, lastAmountPaise: a.amountPaise, sms: handled(s.sms, a.smsRef) };
     }
 
-    case "spend":
+    case "spend": {
       if (!isMoney(a.amountPaise)) return s;
-      return { ...s, entries: [...s.entries, { kind: "spend", id: a.id, day: s.day, at: a.at, amountPaise: a.amountPaise }] };
+      const entry: Entry = {
+        kind: "spend", id: a.id, day: s.day, at: a.at, amountPaise: a.amountPaise,
+        ...(a.category ? { category: a.category } : {}),
+        ...(a.smsRef ? { origin: "sms" as const } : {}),
+      };
+      return { ...s, entries: [...s.entries, entry], sms: handled(s.sms, a.smsRef) };
+    }
+
+    case "smsEnable":
+      return { ...s, sms: { ...s.sms, enabled: true } };
+
+    case "smsDisable":
+      // Off means off: the inbox and the list of seen references are deleted.
+      return { ...s, sms: SMS_OFF };
+
+    case "smsFound": {
+      const known = new Set([...s.sms.seen, ...s.sms.pending.map((t) => t.ref)]);
+      const fresh = a.txns.filter((t) => {
+        if (known.has(t.ref) || dayKey(t.at) !== s.day) return false;
+        known.add(t.ref);
+        return true;
+      });
+      const pending = [...s.sms.pending, ...fresh].sort((x, y) => y.at - x.at);
+      return { ...s, sms: { ...s.sms, pending, lastScanAt: Math.max(s.sms.lastScanAt, a.scannedAt) } };
+    }
+
+    case "smsDismiss":
+      return { ...s, sms: handled(s.sms, a.ref) };
 
     case "withdraw": {
       if (!isMoney(a.amountPaise) || a.amountPaise > potBalance(s, a.potId)) return s;

@@ -38,4 +38,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- SMS auto-capture (opt-in): reads bank / UPI SMS on the phone to suggest payments
+         and spends. Google Play "SMS-based money management" use; needs the Permissions
+         Declaration Form in Play Console. Nothing is uploaded. -->
+    <uses-permission android:name="android.permission.READ_SMS" />
 </manifest>

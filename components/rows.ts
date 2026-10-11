@@ -12,8 +12,10 @@ type Activity = Exclude<Entry, { kind: "opening" }>;
 
 export function sourceLabel(id: string, t: T): string {
   const s = SOURCES.find((x) => x.id === id);
-  return s?.label ?? t("src.cash");
+  return s?.label ?? (id === "other" ? t("src.upi") : t("src.cash"));
 }
+
+const viaSms = (e: { origin?: "sms" }, t: T, text: string) => (e.origin === "sms" ? `${text} · ${t("sms.fromSms")}` : text);
 
 export function rowFor(e: Activity, s: State, t: T): { kind: "in" | "out" | "withdraw"; title: string; sub: string; paise: number } {
   if (e.kind === "payout") {
@@ -24,9 +26,10 @@ export function rowFor(e: Activity, s: State, t: T): { kind: "in" | "out" | "wit
         : e.toEssentialsPaise > 0
           ? t("row.split", { essentials: formatINR(e.toEssentialsPaise), pots: formatINR(toPots) })
           : t("row.toPots", { amount: formatINR(toPots) });
-    return { kind: "in", title: t("row.payment", { source: sourceLabel(e.source, t) }), sub, paise: e.amountPaise };
+    return { kind: "in", title: t("row.payment", { source: sourceLabel(e.source, t) }), sub: viaSms(e, t, sub), paise: e.amountPaise };
   }
-  if (e.kind === "spend") return { kind: "out", title: t("row.spend"), sub: t("row.fromSafe"), paise: e.amountPaise };
+  if (e.kind === "spend")
+    return { kind: "out", title: e.category ? t(`cat.${e.category}`) : t("row.spend"), sub: viaSms(e, t, t("row.fromSafe")), paise: e.amountPaise };
   const pot = s.pots.find((p) => p.id === e.potId);
   return { kind: "withdraw", title: t("row.withdraw", { pot: pot ? potName(pot, t) : "" }), sub: t("row.toBank"), paise: e.amountPaise };
 }
