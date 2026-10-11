@@ -6,7 +6,13 @@ Source of truth: `app/globals.css` (tokens) and `components/ds.tsx` (components)
 - Every screen answers: **Kitna hai? Kitna safe hai? Kahan gaya?**
 - One primary action per screen (lime fill, ink text), in the thumb zone.
 - Any money movement shows **amount + direction + destination** in a ConfirmSheet before it happens.
-- One language at a time (Hindi default, English toggle). The app opts out of browser translation.
+- **8 languages, one at a time:** ಕನ್ನಡ, हिन्दी, English, தமிழ், తెలుగు, മലയാളം, বাংলা, ଓଡ଼ିଆ
+  (Bengaluru's language first, then the languages most migrant riders speak). First launch opens
+  on a language picker pre-selected from the phone's language; the header button and the options
+  menu reopen it any time. Strings live in `lib/i18n/<code>.ts`; English is the source of truth and
+  `tests/i18n.test.ts` checks every language has every key with the same `{placeholders}`.
+  Each script has its own Noto Sans font, downloaded only when shown. The app opts out of browser
+  translation.
 - Banned words: floor, swept, held, payout. Use: set aside, moved to your pots, payment received.
 - Numbers beat words: "₹1,750 of ₹2,500", never "70%".
 
@@ -30,9 +36,10 @@ CSS (no `oklab`, `color-mix`, `translate`/`rotate` properties, `dvh`), so the ap
 older Android WebViews (e.g. BlueStacks). Tailwind scans only `app/`, `components/`, `lib/`.
 
 ## Type
-- **Inter** for Latin text and every number (tabular figures); **Noto Sans Devanagari** for Hindi.
+- **Inter** for Latin text and every number (tabular figures); **Noto Sans** Devanagari, Kannada, Tamil,
+  Telugu, Malayalam, Bengali and Oriya for each script (font variables sit on `<html>`).
 - Money: `.money` (tabular) and `.money-hero` (tight); hero 56–64px extra bold, ₹ with Indian grouping.
-- Body 16px; secondary 14px; nothing under 12px. Hindi gets 1.6 line height.
+- Body 16px; secondary 14px; nothing under 12px. Every Indic script gets 1.6 line height.
 
 ## Space & shape
 - 4/8pt grid; screen gutter 16px; card padding 16–20px.

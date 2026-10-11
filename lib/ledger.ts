@@ -11,7 +11,8 @@ import { RUPEE } from "./money";
 import { sweep } from "./sweep";
 import { dayKey, dayLabel, daysBefore } from "./time";
 
-export type Lang = "hi" | "en";
+export type { Lang } from "./i18n";
+import type { Lang } from "./i18n";
 export type PotIcon = "bike" | "shield" | "coins" | "phone" | "heart" | "school" | "gift" | "home";
 export type WithdrawReason = "repair" | "emergency" | "other";
 

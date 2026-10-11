@@ -1,11 +1,12 @@
 "use client";
 
-import { Info, RotateCcw } from "lucide-react";
+import { Info, Languages, RotateCcw } from "lucide-react";
+import { LANGS } from "@/lib/i18n";
 import { ESSENTIALS_CHOICES_PAISE } from "@/lib/config";
 import { useSambhal } from "@/lib/store";
 import { Chip, Money, Sheet, TextButton } from "../ds";
 
-export function MenuSheet({ onClose, onReset }: { onClose: () => void; onReset: () => void }) {
+export function MenuSheet({ onClose, onReset, onLanguage }: { onClose: () => void; onReset: () => void; onLanguage: () => void }) {
   const { state, dispatch, t, showToast } = useSambhal();
   return (
     <Sheet onClose={onClose} label={t("menu.title")}>
@@ -25,6 +26,9 @@ export function MenuSheet({ onClose, onReset }: { onClose: () => void; onReset: 
         </div>
 
         <div className="divide-y divide-line border-t border-line">
+          <TextButton icon={Languages} tone="muted" className="w-full !justify-start" onClick={onLanguage}>
+            {t("menu.language")} · <span lang={state.lang}>{LANGS.find((l) => l.code === state.lang)?.native}</span>
+          </TextButton>
           <TextButton
             icon={Info}
             tone="muted"

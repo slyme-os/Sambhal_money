@@ -5,8 +5,8 @@
 // every screen size.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { HandCoins, House, Minus, MoreHorizontal, PiggyBank, Plus, type LucideIcon } from "lucide-react";
-import type { MsgKey } from "@/lib/i18n";
+import { HandCoins, House, Languages, Minus, MoreHorizontal, PiggyBank, Plus, type LucideIcon } from "lucide-react";
+import { LANGS, type MsgKey } from "@/lib/i18n";
 import { onBackButton, styleStatusBar } from "@/lib/native";
 import { SambhalStore, useSambhal } from "@/lib/store";
 import { PrimaryButton, SecondaryButton, SkeletonScreen, ToastHost } from "./ds";
@@ -15,6 +15,7 @@ import { Loan } from "./screens/Loan";
 import { Onboarding } from "./screens/Onboarding";
 import { PotDetail, Pots } from "./screens/Pots";
 import { EntrySheet } from "./sheets/EntrySheet";
+import { LanguageSheet } from "./sheets/LanguageSheet";
 import { MenuSheet } from "./sheets/MenuSheet";
 import { PaymentSheet } from "./sheets/PaymentSheet";
 import { PotSheet } from "./sheets/PotSheet";
@@ -30,6 +31,7 @@ export type SheetState =
   | { kind: "pot"; potId?: string }
   | { kind: "entry"; id: string }
   | { kind: "menu" }
+  | { kind: "language" }
   | null;
 
 const TABS: { id: Tab; key: MsgKey; Icon: LucideIcon }[] = [
@@ -94,14 +96,14 @@ function Shell() {
 
       {!ready ? (
         <>
-          <Header onMenu={() => undefined} />
+          <Header onMenu={() => undefined} onLanguage={() => undefined} />
           <SkeletonScreen />
         </>
       ) : !state.onboarded ? (
         <Onboarding />
       ) : (
         <>
-          <Header onMenu={() => setSheet({ kind: "menu" })} />
+          <Header onMenu={() => setSheet({ kind: "menu" })} onLanguage={() => setSheet({ kind: "language" })} />
 
           <main className="flex-1 pb-[calc(11.5rem+env(safe-area-inset-bottom))]">
             {tab === "home" && <Home onOpenEntry={(id) => setSheet({ kind: "entry", id })} />}
@@ -165,9 +167,11 @@ function Shell() {
           {sheet?.kind === "withdraw" && <WithdrawSheet potId={sheet.potId} onClose={close} />}
           {sheet?.kind === "pot" && <PotSheet potId={sheet.potId} onClose={close} />}
           {sheet?.kind === "entry" && <EntrySheet id={sheet.id} onClose={close} />}
+          {sheet?.kind === "language" && <LanguageSheet onClose={close} />}
           {sheet?.kind === "menu" && (
             <MenuSheet
               onClose={close}
+              onLanguage={() => setSheet({ kind: "language" })}
               onReset={() => {
                 dispatch({ type: "reset", now: Date.now() });
                 setPotId(null);
@@ -181,25 +185,27 @@ function Shell() {
   );
 }
 
-function Header({ onMenu }: { onMenu: () => void }) {
-  const { state, dispatch, t } = useSambhal();
+function Header({ onMenu, onLanguage }: { onMenu: () => void; onLanguage: () => void }) {
+  const { state, t } = useSambhal();
+  const current = LANGS.find((l) => l.code === state.lang) ?? LANGS[0];
   return (
     <header className="flex items-center gap-3 px-4 pb-1 pt-3">
-      <span aria-hidden className="chrome-dark grid h-10 w-10 place-items-center rounded-xl text-lg font-extrabold text-lime">
+      <span aria-hidden className="chrome-dark grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg font-extrabold text-lime">
         ₹
       </span>
-      <p className="flex-1 text-lg font-extrabold text-ink" translate="no">
+      <p className="min-w-0 flex-1 truncate text-lg font-extrabold text-ink" translate="no">
         {t("app.name")}
       </p>
       <button
         type="button"
-        onClick={() => dispatch({ type: "setLang", lang: state.lang === "hi" ? "en" : "hi" })}
-        aria-label={t("lang.switch")}
-        className="press grid min-h-12 min-w-12 place-items-center rounded-full bg-card px-4 text-base font-bold text-ink shadow-card"
+        onClick={onLanguage}
+        aria-label={`${t("lang.button")}: ${current.native}`}
+        className="press flex min-h-12 shrink-0 items-center gap-1.5 rounded-full bg-card pl-3 pr-4 text-base font-bold text-ink shadow-card"
       >
-        {t("lang.short")}
+        <Languages size={18} strokeWidth={2.2} aria-hidden className="text-green-700" />
+        <span lang={current.code}>{current.native}</span>
       </button>
-      <button type="button" onClick={onMenu} aria-label={t("menu.open")} className="press grid h-12 w-12 place-items-center rounded-full bg-card text-ink shadow-card">
+      <button type="button" onClick={onMenu} aria-label={t("menu.open")} className="press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-card text-ink shadow-card">
         <MoreHorizontal size={24} aria-hidden />
       </button>
     </header>

@@ -5,7 +5,7 @@
 // on load and whenever the app comes back to the foreground.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
-import { translate, type MsgKey, type Vars } from "./i18n";
+import { detectLang, isLang, translate, type MsgKey, type Vars } from "./i18n";
 import { isState, reducer, seedState, type Action, type Lang, type State } from "./ledger";
 
 const KEY = "sambhal:v1";
@@ -60,7 +60,9 @@ export function SambhalStore({ children }: { children: ReactNode }) {
   // Load once, then roll the day over if the phone was closed past 4 AM.
   useEffect(() => {
     const saved = load();
-    if (saved) dispatch({ type: "hydrate", state: saved });
+    if (saved) dispatch({ type: "hydrate", state: isLang(saved.lang) ? saved : { ...saved, lang: "hi" } });
+    // First launch: start in the phone's own language; the picker is the first screen anyway.
+    else dispatch({ type: "setLang", lang: detectLang(navigator.languages ?? [navigator.language]) });
     dispatch({ type: "rollover", now: Date.now() });
     setReady(true);
     const onVisible = () => document.visibilityState === "visible" && dispatch({ type: "rollover", now: Date.now() });

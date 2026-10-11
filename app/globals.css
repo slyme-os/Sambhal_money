@@ -68,7 +68,7 @@
   --shadow-sheet: 0 -16px 48px -16px rgba(10, 26, 17, 0.4);
   --shadow-glow: 0 10px 28px -10px rgba(170, 214, 40, 0.75);
 
-  --font-sans: var(--font-inter), var(--font-deva), system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-deva), var(--font-kn), var(--font-ta), var(--font-te), var(--font-ml), var(--font-bn), var(--font-or), system-ui, sans-serif;
 }
 
 /* Used by inline SVG. */
@@ -92,14 +92,14 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Devanagari matras clip at tight leading. */
-html[lang="hi"] body {
+/* Indic scripts have tall vowel signs that clip at tight leading. */
+html:not([lang="en"]) body {
   line-height: 1.6;
 }
 
 /* Money: the hero. Tabular so digits don't jump; Inter covers ₹ and digits. */
 .money {
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "cv11" 1;
   letter-spacing: -0.02em;

@@ -1,20 +1,22 @@
 "use client";
 
-// First launch, 4 screens: what Sambhal does → why it's safe → first pot → daily
-// essentials. Every screen is skippable; skipping keeps the usual settings.
+// First launch: pick a language (pre-selected from the phone), then 4 screens: what
+// Sambhal does → why it's safe → first pot → daily essentials. Every screen is
+// skippable; skipping keeps the usual settings.
 
 import { useState } from "react";
 import { ArrowLeft, Fuel, Landmark, PiggyBank, ShieldCheck, Sparkles } from "lucide-react";
 import { ESSENTIALS_CHOICES_PAISE } from "@/lib/config";
 import { RUPEE } from "@/lib/money";
 import { useSambhal } from "@/lib/store";
+import { CHOOSE_LANGUAGE_MULTI, LanguageList } from "../sheets/LanguageSheet";
 import { Chip, Money, POT_ICONS, PrimaryButton, TextButton, TrustBadge, potName } from "../ds";
 
 const GOALS = [1000, 2500, 5000].map((r) => r * RUPEE);
 
 export function Onboarding() {
   const { state, dispatch, t } = useSambhal();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [potId, setPotId] = useState(state.pots[0]?.id ?? "bike");
   const pot = state.pots.find((p) => p.id === potId) ?? state.pots[0];
   const [goal, setGoal] = useState(pot?.goalPaise ?? 2500 * RUPEE);
@@ -32,28 +34,33 @@ export function Onboarding() {
   return (
     <div className="flex min-h-[calc(100vh-2rem)] flex-col px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-2">
       <div className="flex min-h-12 items-center justify-between">
-        {step > 1 ? (
+        {step > 0 ? (
           <TextButton icon={ArrowLeft} tone="muted" onClick={() => setStep(step - 1)} className="-ml-3">{t("action.back")}</TextButton>
         ) : (
-          <button
-            type="button"
-            onClick={() => dispatch({ type: "setLang", lang: state.lang === "hi" ? "en" : "hi" })}
-            className="press min-h-12 rounded-full bg-card px-4 text-base font-bold text-ink shadow-card"
-          >
-            {t("lang.switch")}
-          </button>
+          <span className="chrome-dark grid h-10 w-10 place-items-center rounded-xl text-lg font-extrabold text-lime" aria-hidden>₹</span>
         )}
         <TextButton tone="muted" onClick={skip} className="-mr-3">{t("action.skip")}</TextButton>
       </div>
 
-      <div className="mt-2 flex gap-1.5" aria-label={t("ob.step", { n: step })} role="img">
-        {[1, 2, 3, 4].map((n) => (
-          <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-night" : "bg-line"}`} />
-        ))}
-      </div>
-      <p className="mt-2 text-sm font-semibold text-muted">{t("ob.step", { n: step })}</p>
+      {step > 0 && (
+        <>
+          <div className="mt-2 flex gap-1.5" aria-label={t("ob.step", { n: step })} role="img">
+            {[1, 2, 3, 4].map((n) => (
+              <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-night" : "bg-line"}`} />
+            ))}
+          </div>
+          <p className="mt-2 text-sm font-semibold text-muted">{t("ob.step", { n: step })}</p>
+        </>
+      )}
 
       <div key={step} className="screen-in mt-6 flex-1">
+        {step === 0 && (
+          <>
+            <h1 className="text-[28px] font-extrabold leading-tight text-ink">{t("lang.title")}</h1>
+            <p className="mb-5 mt-2 text-base text-muted" translate="no">{CHOOSE_LANGUAGE_MULTI}</p>
+            <LanguageList value={state.lang} onPick={(lang) => dispatch({ type: "setLang", lang })} />
+          </>
+        )}
         {step === 1 && (
           <>
             <Hero icons={[Fuel, Sparkles, PiggyBank]} />
