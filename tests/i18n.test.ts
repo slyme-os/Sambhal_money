@@ -30,6 +30,14 @@ describe("translations", () => {
     }
   });
 
+  it("onboarding names the partner NBFC, and withdrawals never promise instant money", () => {
+    for (const lang of Object.keys(DICTS) as Lang[]) {
+      expect(translate(lang, "ob.2.noLend")).toContain("NBFC");
+      expect(translate(lang, "wd.arrives")).toContain("24");
+      for (const v of Object.values(DICTS[lang])) expect(v).not.toMatch(/instant/i);
+    }
+  });
+
   it("never uses the banned jargon in English", () => {
     for (const v of Object.values(en)) expect(v).not.toMatch(BANNED);
   });

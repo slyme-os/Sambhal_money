@@ -56,7 +56,7 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 export function Progress({ value, tone = "green", label }: { value: number; tone?: "green" | "amber" | "red" | "dark" | "amberDark"; label: string }) {
   const pct = Math.max(0, Math.min(1, value)) * 100;
   const fill = { green: "bar-lux", amber: "bg-amber-600", red: "bg-red-600", dark: "bar-lux-dark", amberDark: "bg-amber-300" }[tone];
-  const track = { green: "bg-[#e4ebda]", amber: "bg-amber-100", red: "bg-red-100", dark: "bg-[#24402f]", amberDark: "bg-[#24402f]" }[tone];
+  const track = { green: "bg-line", amber: "bg-amber-100", red: "bg-red-100", dark: "bg-track-dark", amberDark: "bg-track-dark" }[tone];
   return (
     <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`h-2.5 w-full overflow-hidden rounded-full ${track}`}>
       <div className={`bar-fill h-full rounded-full ${fill}`} style={{ width: `${pct}%` }} />
@@ -73,7 +73,7 @@ export function Ring({ value, size = 168, stroke = 12, children }: { value: numb
       <svg width={size} height={size} className="ring-rotate" aria-hidden>
         <defs>
           <linearGradient id="ring-lux" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#8edb4f" />
+            <stop offset="0%" stopColor="#cfee55" />
             <stop offset="100%" stopColor="#ddf76a" />
           </linearGradient>
         </defs>
@@ -130,8 +130,8 @@ export function PotCard({ pot, balance, eta, todayPaise, onOpen }: { pot: Pot; b
         <PotGlyph icon={pot.icon} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-bold text-ink">{name}</p>
-          <p className="text-sm text-muted">
-            {t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
+          <p className={left === 0 ? "text-sm font-semibold text-green-700" : "text-sm text-muted"}>
+            {left === 0 ? t("pots.goalOf", { goal: formatINR(pot.goalPaise) }) : t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
           </p>
         </div>
         <Money paise={balance} className="text-xl font-extrabold" />
@@ -140,7 +140,7 @@ export function PotCard({ pot, balance, eta, todayPaise, onOpen }: { pot: Pot; b
         <Progress value={balance / pot.goalPaise} label={name} />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 text-sm">
           <span className={left === 0 ? "font-semibold text-green-700" : "text-ink-2"}>
-            {left === 0 ? t("pots.reached") : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(eta, t)}`}
+            {left === 0 ? `${t("pots.reached")} ✓` : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(eta, t)}`}
           </span>
           {todayPaise > 0 && <span className="money font-semibold text-green-700">{t("pots.todayPlus", { amount: formatINR(todayPaise) })}</span>}
         </div>
@@ -164,7 +164,7 @@ type BtnProps = { children: ReactNode; onClick?: () => void; disabled?: boolean;
 export function PrimaryButton({ children, onClick, disabled, type = "button", className = "", icon: Icon }: BtnProps) {
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`press flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-lime px-5 text-lg font-extrabold text-night active:bg-lime-press disabled:bg-surface disabled:text-muted ${disabled ? "" : "btn-glow"} ${className}`}>
-      {Icon && <Icon size={22} strokeWidth={2.4} aria-hidden />}
+      {Icon && <Icon size={22} strokeWidth={2.4} aria-hidden className="shrink-0" />}
       {children}
     </button>
   );
@@ -173,7 +173,7 @@ export function PrimaryButton({ children, onClick, disabled, type = "button", cl
 export function SecondaryButton({ children, onClick, disabled, type = "button", className = "", icon: Icon, ariaLabel }: BtnProps) {
   return (
     <button type={type} onClick={onClick} disabled={disabled} aria-label={ariaLabel} className={`press flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-night bg-card px-5 text-base font-bold text-night disabled:border-line disabled:text-muted ${className}`}>
-      {Icon && <Icon size={20} strokeWidth={2.2} aria-hidden />}
+      {Icon && <Icon size={20} strokeWidth={2.2} aria-hidden className="shrink-0" />}
       {children}
     </button>
   );
@@ -189,14 +189,15 @@ export function TextButton({ children, onClick, className = "", icon: Icon, tone
   );
 }
 
-export function Chip({ children, selected, onClick, label }: { children: ReactNode; selected: boolean; onClick: () => void; label?: string }) {
+export function Chip({ children, selected, onClick, label, disabled }: { children: ReactNode; selected: boolean; onClick: () => void; label?: string; disabled?: boolean }) {
   return (
     <button
       type="button"
+      disabled={disabled}
       aria-pressed={selected}
       aria-label={label}
       onClick={onClick}
-      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-night bg-lime text-night" : "border-transparent bg-card text-ink shadow-card"}`}
+      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-night bg-lime text-night" : disabled ? "border-transparent bg-surface text-muted line-through" : "border-transparent bg-card text-ink shadow-card"}`}
     >
       {children}
     </button>
@@ -244,7 +245,7 @@ export function TrustBadge({ icon: Icon, children }: { icon: LucideIcon; childre
 export function EmptyState({ icon: Icon, title, body, action }: { icon: LucideIcon; title: string; body: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center rounded-[var(--radius-card)] bg-card px-5 py-7 text-center shadow-card">
-      <span aria-hidden className="lime-tile text-night grid h-14 w-14 place-items-center rounded-2xl">
+      <span aria-hidden className="chrome-dark text-lime grid h-14 w-14 place-items-center rounded-2xl">
         <Icon size={28} strokeWidth={2} />
       </span>
       <p className="mt-3 text-lg font-bold text-ink">{title}</p>
@@ -294,8 +295,8 @@ export interface ConfirmRow {
 }
 
 /** Every money movement: amount, direction and destination, shown before it happens. */
-export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, onBack, danger }: {
-  title: string; sub?: string; rows: ConfirmRow[]; note?: ReactNode; confirmLabel: string; onConfirm: () => void; onBack: () => void; danger?: boolean;
+export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, onBack, danger, disabled }: {
+  title: string; sub?: string; rows: ConfirmRow[]; note?: ReactNode; confirmLabel: string; onConfirm: () => void; onBack: () => void; danger?: boolean; disabled?: boolean;
 }) {
   const { t } = useSambhal();
   return (
@@ -326,7 +327,7 @@ export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, o
             {confirmLabel}
           </button>
         ) : (
-          <PrimaryButton onClick={onConfirm}>{confirmLabel}</PrimaryButton>
+          <PrimaryButton onClick={onConfirm} disabled={disabled}>{confirmLabel}</PrimaryButton>
         )}
         <TextButton onClick={onBack} tone="muted" className="w-full">
           {t("action.back")}
@@ -384,11 +385,11 @@ export function AmountDisplay({ paise, tone = "ink" }: { paise: number; tone?: k
 
 // ---------- feedback ----------
 
-export function ToastHost({ withActionBar }: { withActionBar: boolean }) {
+export function ToastHost({ bottom }: { bottom: number }) {
   const { toast, dismissToast, t } = useSambhal();
   if (!toast) return null;
   return (
-    <div className={`pointer-events-none fixed inset-x-0 z-[45] flex justify-center px-4 ${withActionBar ? "bottom-[calc(10.5rem+env(safe-area-inset-bottom))]" : "bottom-[calc(6rem+env(safe-area-inset-bottom))]"}`}>
+    <div className="pointer-events-none fixed inset-x-0 z-[45] flex justify-center px-4" style={{ bottom }}>
       <div role="status" key={toast.id} className={`toast-in pointer-events-auto flex min-h-14 w-full max-w-[448px] items-center gap-3 rounded-2xl px-4 py-2 shadow-sheet ${toast.tone === "alert" ? "bg-red-700 text-white" : "chrome-dark text-white"}`}>
         <span className="flex-1 text-base font-medium">{toast.message}</span>
         {toast.undo && (

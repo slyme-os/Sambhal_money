@@ -55,6 +55,10 @@ export function WithdrawSheet({ potId, onClose }: { potId: string; onClose: () =
               ))}
             </div>
           </div>
+          <p className="flex items-center gap-2 text-sm font-semibold text-ink-2">
+            <CalendarClock size={18} aria-hidden className="text-amber-700" />
+            {t("wd.arrives")}
+          </p>
           <Keypad value={digits} onChange={setDigits} />
           <PrimaryButton disabled={!amount || tooMuch} onClick={() => setStep("confirm")}>
             {amount ? t("action.next") : t("pay.enter")}

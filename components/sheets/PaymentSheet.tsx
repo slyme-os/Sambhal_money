@@ -5,9 +5,9 @@
 // before anything moves; the done step plays the sweep into pots.
 
 import { useState } from "react";
-import { CircleCheck, Fuel, TriangleAlert } from "lucide-react";
-import { LARGE_PAYMENT_PAISE, SOURCES, type SourceId } from "@/lib/config";
-import { allocate, earnedToday } from "@/lib/ledger";
+import { CircleCheck, Fuel, Landmark, TriangleAlert } from "lucide-react";
+import { LARGE_PAYMENT_PAISE, MAX_PAYMENT_PAISE, SOURCES, type SourceId } from "@/lib/config";
+import { allocate, earnedToday, potBalances } from "@/lib/ledger";
 import { digitsToPaise, formatINR } from "@/lib/money";
 import { newId, useSambhal } from "@/lib/store";
 import { sweep } from "@/lib/sweep";
@@ -26,15 +26,21 @@ export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefil
   const amount = digitsToPaise(digits);
 
   const r = sweep(amount, earnedToday(state), state.essentialsPaise);
-  const alloc = allocate(r.surplus, state.pots);
+  const alloc = allocate(r.surplus, state.pots, potBalances(state));
+  const moved = Object.values(alloc).reduce((a, b) => a + b, 0);
+  // Every goal reached: the extra isn't moved anywhere, it stays in the bank.
+  const stays = r.surplus - moved;
+  const tooBig = amount > MAX_PAYMENT_PAISE;
   const rows: ConfirmRow[] = [
     ...(r.toFloor > 0 ? [{ label: t("row.toEssentials"), paise: r.toFloor, tone: "amber" as const, icon: Fuel }] : []),
     ...state.pots
       .filter((p) => (alloc[p.id] ?? 0) > 0)
       .map((p) => ({ label: potName(p, t), paise: alloc[p.id], tone: "green" as const, icon: POT_ICONS[p.icon] })),
+    ...(stays > 0 ? [{ label: t("row.staysInBank"), paise: stays, tone: "ink" as const, icon: Landmark }] : []),
   ];
 
   const confirm = () => {
+    if (tooBig) return;
     dispatch({ type: "payout", id: entryId, at: prefill?.at ?? Date.now(), amountPaise: amount, source, smsRef: prefill?.smsRef });
     setStep("done");
   };
@@ -67,7 +73,12 @@ export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefil
             </Chip>
           )}
 
-          {amount > LARGE_PAYMENT_PAISE && (
+          {tooBig ? (
+            <p className="flex items-start gap-2 rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">
+              <TriangleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
+              {t("pay.max", { amount: formatINR(MAX_PAYMENT_PAISE) })}
+            </p>
+          ) : amount > LARGE_PAYMENT_PAISE && (
             <p className="flex items-start gap-2 rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">
               <TriangleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
               {t("pay.big")}
@@ -75,7 +86,7 @@ export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefil
           )}
 
           <Keypad value={digits} onChange={setDigits} />
-          <PrimaryButton onClick={() => setStep("preview")} disabled={!amount}>
+          <PrimaryButton onClick={() => setStep("preview")} disabled={!amount || tooBig}>
             {amount ? t("action.next") : t("pay.enter")}
           </PrimaryButton>
         </div>
@@ -86,9 +97,10 @@ export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefil
           title={t("pay.previewTitle", { amount: formatINR(amount), source: sourceLabel(source, t) })}
           sub={t("pay.previewSub")}
           rows={rows}
-          note={r.surplus === 0 ? <p className="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">{t("pay.notEnough")}</p> : undefined}
+          note={tooBig ? <p className="rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">{t("pay.max", { amount: formatINR(MAX_PAYMENT_PAISE) })}</p> : r.surplus === 0 ? <p className="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">{t("pay.notEnough")}</p> : undefined}
           confirmLabel={t("action.confirm")}
           onConfirm={confirm}
+          disabled={tooBig}
           onBack={() => setStep("amount")}
         />
       )}
@@ -100,7 +112,7 @@ export function PaymentSheet({ onClose, prefill }: { onClose: () => void; prefil
               <CircleCheck size={32} strokeWidth={2.2} aria-hidden />
             </span>
             <p className="amount-split mt-3 text-2xl font-extrabold text-lime" aria-live="polite">
-              {r.surplus > 0 ? t("pay.doneTitle", { amount: formatINR(r.surplus) }) : t("pay.doneNone", { amount: formatINR(r.toFloor) })}
+              {moved > 0 ? t("pay.doneTitle", { amount: formatINR(moved) }) : t("pay.doneNone", { amount: formatINR(r.toFloor) })}
             </p>
           </div>
           <ol className="space-y-2">

@@ -9,11 +9,15 @@ Branch: `feat/gmoney-mvp`. Remote: `slyme-os/sambhal_money` (moved to `Sambhal_m
 ## Non-negotiable rules (legal + trust)
 - **Sambhal does not lend.** The line "The loan comes from a partner NBFC. Sambhal does not lend."
   stays on the Loan screen in every language. No apply / repay / disburse action anywhere.
-- Loan screen shows eligibility only ("eligibility can build up", "not an offer"). ₹8,000 figure
-  is CEO-approved with that wording. No repayment terms until a real NBFC + legal review.
-- `LENDER_COMPARISON` in `lib/config.ts` stays `null` unless figures are sourced (with a source line).
+- Loan screen shows eligibility only ("eligibility can build up", "not an offer"). Eligibility =
+  Savings pot × 3.5, nearest ₹500, max ₹15,000 (`eligibilityPaise` in `lib/config.ts`; seed → ₹7,500).
+  No repayment terms until a real NBFC + legal review.
+- `SOURCED_COMPARISON` in `lib/config.ts` stays `null` unless figures are sourced from rider
+  interviews (with a source line). Streak/days-worked demo constants live in `DEMO_CREDIT` there too.
 - No return, yield or growth claims, ever.
 - Daily essentials (default ₹300) are never moved to pots.
+- Pots never fill past their goal; a full pot's share goes to Savings (then any pot with room).
+- One demo payment is capped at ₹5,000; "check the amount" warning above ₹2,000.
 - Every money movement shows amount + direction + destination before confirming (ConfirmBody).
 - SMS: opt-in, consent shown before the permission prompt, nothing added until the rider taps Add,
   SMS text never stored or uploaded (only parsed fields), turning off deletes captured data.
@@ -21,7 +25,7 @@ Branch: `feat/gmoney-mvp`. Remote: `slyme-os/sambhal_money` (moved to `Sambhal_m
 
 ## Commands
 ```bash
-npm test              # vitest (56 tests: sweep, ledger, i18n, SMS parser, SMS inbox)
+npm test              # vitest (sweep, ledger, goals, eligibility, i18n, SMS parser, SMS inbox)
 npx tsc --noEmit      # typecheck
 npx eslint components lib app tests
 npm run build         # web build
@@ -33,7 +37,7 @@ cloud sandbox (dl.google.com is blocked): **APKs are built by GitHub Actions** (
 
 ## Architecture
 - Next.js 15 + React 19 + Tailwind v4, fully client-side. Capacitor 8 wraps the static export for Android.
-- `lib/sweep.ts` — pure sweep: floor first, extra split 20% emergency / 30% savings / rest bike. Don't change without tests.
+- `lib/sweep.ts` — pure sweep: floor first, extra split Bike 50% / Emergency 20% / Savings 30% (rounding to Bike). Don't change without tests.
 - `lib/ledger.ts` — the whole state as a ledger. Pot balances are **derived** (openings + allocations − withdrawals).
   Reducer is pure. Working day starts 4 AM IST (`lib/time.ts`). Adding/removing a payment replays the day (`recomputeDay`).
 - `lib/store.tsx` — context, localStorage persistence (`sambhal:v1`), rollover, toasts, SMS scanning, `smsMode`.
@@ -46,8 +50,11 @@ cloud sandbox (dl.google.com is blocked): **APKs are built by GitHub Actions** (
 - Design tokens in `app/globals.css`; rules in `docs/DESIGN.md`. Android/Play steps in `docs/ANDROID.md`.
 
 ## Design rules
-- Modern luxury: light canvas, night-forest `lux-card` heroes, lime `#DDF76A` accent (primary button, active tab,
-  hero numbers on dark), slime `#8EDB4F` for money in, amber = set aside, coral/red = shortfall.
+- Monochrome with one accent: warm greys + near-black ink, near-black `lux-card` heroes, lime `#DDF76A` is the
+  only colour (primary button, active tab, hero numbers on dark, icon tiles = night + lime icon). Red only for
+  shortfall/errors. Meaning is carried by icon + words, never colour alone.
+- Bottom bar is measured (`App.tsx`): main padding = bar height + 16px; toasts sit above it. Below 380px the
+  language pill is icon-only and bar labels may wrap (`.action-btn`). Long Indic words use `.wrap-any`.
 - One primary button per screen; tap targets ≥ 48px; works at 360px; text contrast ≥ 4.5:1; lime never as text on light.
 - **Old Android WebViews (BlueStacks):** no Tailwind `translate-*`/`rotate-*`, `dvh`, opacity modifiers (`/40`), or
   Tailwind gradient utilities. Use plain CSS classes in `globals.css`. Tailwind scans only `app/ components/ lib/`.

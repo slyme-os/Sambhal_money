@@ -5,76 +5,77 @@
 @source "../lib";
 
 /*
- * Sambhal design tokens: modern luxury. Light canvas, night-forest hero surfaces,
- * lime yellow as the signature accent, slime green for money moving in.
- * Signal logic: lime/slime = safe money, amber = set aside, coral/red = shortfall.
+ * Sambhal design tokens: monochrome with one accent. Warm-neutral greys and near-black
+ * ink carry everything; lime #DDF76A is the single colour (primary action, active tab,
+ * hero numbers on dark). Red appears only for a shortfall or an error.
  * Every text pair is AA (4.5:1) or better; checked values in the comments.
  * Gradients and transforms are plain CSS (no oklab, color-mix, translate/rotate
  * properties) so the app renders on older Android WebViews too.
  */
 @theme {
   /* Neutrals (light) */
-  --color-canvas: #f3f5ee;      /* page: warm, faintly lime */
+  --color-canvas: #f4f4f1;      /* page: warm paper */
   --color-card: #ffffff;
-  --color-surface: #ebf0e4;     /* keys, quiet chips */
-  --color-ink: #0a1a11;         /* text */
-  --color-ink-2: #2f3f35;       /* 10:1 on canvas */
-  --color-muted: #56655c;       /* 5.6:1 on canvas */
-  --color-line: #dde4d6;        /* decorative dividers */
-  --color-line-strong: #6f8277; /* input borders, 3.9:1 */
+  --color-surface: #ecece8;     /* keys, quiet chips */
+  --color-ink: #111111;         /* text, 18:1 on canvas */
+  --color-ink-2: #383838;       /* 10.9:1 on canvas */
+  --color-muted: #5e5e5b;       /* 6.1:1 on canvas */
+  --color-line: #e3e3de;        /* decorative dividers, progress track */
+  --color-line-strong: #767672; /* input borders, 4.5:1 on white */
 
-  /* Night forest: luxury dark surfaces */
-  --color-night: #0a1a11;
-  --color-forest-900: #0f2a1b;
-  --color-forest-800: #163a26;
-  --color-on-dark: #ffffff;     /* 15:1 on forest-900 */
-  --color-on-dark-2: #c5d3c8;   /* 9.9:1 */
-  --color-on-dark-3: #a8bbae;   /* 7.6:1 */
+  /* Night: dark hero surfaces */
+  --color-night: #111111;
+  --color-forest-900: #191919;
+  --color-forest-800: #262626;  /* pills on dark */
+  --color-track-dark: #303030;  /* progress / ring track on dark */
+  --color-on-dark: #ffffff;     /* 17:1 on forest-900 */
+  --color-on-dark-2: #d0d0cc;   /* 11.7:1 */
+  --color-on-dark-3: #a9a9a5;   /* 7.8:1 */
 
-  /* Brand green (text and icons on light) + lime-tinted tints */
-  --color-green-50: #eef7dd;
-  --color-green-100: #ddefc4;
-  --color-green-600: #2f8a2a;
-  --color-green-700: #17593b;   /* 7.5:1 on green-50 */
-  --color-green-800: #0f4229;   /* 9.4:1 on green-100 */
+  /* "Green" is the ink family now: icons and emphasis on light stay monochrome. */
+  --color-green-50: #efefeb;
+  --color-green-100: #e5e5e0;
+  --color-green-600: #111111;
+  --color-green-700: #1c1c1c;   /* 15:1 on green-50 */
+  --color-green-800: #111111;
 
-  /* Lime yellow: the signature accent */
-  --color-lime: #ddf76a;        /* night on lime 15:1; lime on forest 12.9:1 */
+  /* Lime: the one accent */
+  --color-lime: #ddf76a;        /* ink on lime 16:1; lime on night 15:1 */
   --color-lime-press: #cbea4c;
-  --color-lime-50: #f4fad9;
+  --color-lime-50: #f7f7f3;     /* money-in rows: a whisper, not a colour */
 
-  /* Slime green: positive movement on dark */
-  --color-slime: #8edb4f;       /* 9.1:1 on forest-900 */
+  /* On dark, money moving in reads in soft white; today's bar is lime. */
+  --color-slime: #e9e9e4;       /* 15:1 on forest-900 */
 
-  /* Amber: set aside for essentials */
-  --color-amber-50: #fff6e5;
-  --color-amber-100: #fce7bd;
-  --color-amber-300: #f6c25b;   /* on dark, 9.4:1 */
-  --color-amber-600: #a85a06;
-  --color-amber-700: #8a4a05;
+  /* "Amber" (set aside, check this) is neutral grey: icon + words carry the meaning. */
+  --color-amber-50: #ecece8;
+  --color-amber-100: #e3e3de;
+  --color-amber-300: #d0d0cc;   /* on dark, 11.7:1 */
+  --color-amber-600: #555552;
+  --color-amber-700: #2b2b2b;   /* 12.6:1 on amber-50 */
 
-  /* Red: shortfall */
+  /* Red: shortfall and errors only */
   --color-red-50: #fdf0ef;
   --color-red-100: #f9d9d6;
   --color-red-600: #b42318;
   --color-red-700: #912018;
-  --color-coral: #ff9a8b;       /* on dark, 7.5:1 */
+  --color-coral: #ff9a8b;       /* on dark, 8:1 */
 
   --radius-card: 24px;
   --radius-sheet: 28px;
 
-  --shadow-card: 0 1px 2px rgba(10, 26, 17, 0.05), 0 8px 24px -12px rgba(10, 26, 17, 0.14);
-  --shadow-bar: 0 -10px 30px -14px rgba(10, 26, 17, 0.25);
-  --shadow-sheet: 0 -16px 48px -16px rgba(10, 26, 17, 0.4);
-  --shadow-glow: 0 10px 28px -10px rgba(170, 214, 40, 0.75);
+  --shadow-card: 0 1px 2px rgba(17, 17, 17, 0.05), 0 8px 24px -12px rgba(17, 17, 17, 0.14);
+  --shadow-bar: 0 -10px 30px -14px rgba(17, 17, 17, 0.28);
+  --shadow-sheet: 0 -16px 48px -16px rgba(17, 17, 17, 0.4);
+  --shadow-glow: 0 10px 24px -12px rgba(150, 190, 30, 0.6);
 
   --font-sans: var(--font-inter), var(--font-deva), var(--font-kn), var(--font-ta), var(--font-te), var(--font-ml), var(--font-bn), var(--font-or), system-ui, sans-serif;
 }
 
 /* Used by inline SVG. */
 :root {
-  --green: #17593b;
-  --track: #24402f;
+  --green: #111111;
+  --track: #303030;
   color-scheme: light;
 }
 
@@ -121,6 +122,23 @@ html:not([lang="en"]) body {
   outline: 3px solid var(--green);
   outline-offset: 2px;
 }
+
+/* Header language pill: full label from 380px, icon only below. */
+.lang-pill { padding: 0 1rem 0 0.75rem; }
+@media (max-width: 379px) {
+  .lang-pill { padding: 0; width: 3rem; }
+  .lang-pill-label { display: none; }
+}
+
+/* Bottom action buttons: one line where it fits; on narrow phones long labels wrap
+   (the bar is measured, so content padding follows its height). */
+.action-btn { white-space: nowrap; line-height: 1.2; text-align: center; }
+@media (max-width: 379px) {
+  .action-btn { white-space: normal; font-size: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+}
+
+/* Long single words (Tamil, Malayalam) break instead of spilling out of a card. */
+.wrap-any { overflow-wrap: anywhere; }
 
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
@@ -171,7 +189,7 @@ html:not([lang="en"]) body {
   to { background-position: 200px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--color-surface) 0%, #f6f9f7 50%, var(--color-surface) 100%);
+  background: linear-gradient(90deg, var(--color-surface) 0%, #f8f8f6 50%, var(--color-surface) 100%);
   background-size: 400px 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -191,16 +209,15 @@ html:not([lang="en"]) body {
 
 /* ---------- luxury surfaces ---------- */
 
-/* Night-forest hero card with a lime and a slime glow in opposite corners. */
+/* Night hero card: near-black with one soft lime glow in the corner. */
 .lux-card {
   position: relative;
   overflow: hidden;
   color: var(--color-on-dark);
   background:
-    radial-gradient(120% 90% at 100% 0%, rgba(221, 247, 106, 0.22) 0%, rgba(221, 247, 106, 0) 55%),
-    radial-gradient(90% 80% at 0% 100%, rgba(142, 219, 79, 0.16) 0%, rgba(142, 219, 79, 0) 60%),
-    linear-gradient(160deg, #163a26 0%, #0f2a1b 45%, #0a1a11 100%);
-  box-shadow: 0 18px 40px -18px rgba(10, 26, 17, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    radial-gradient(110% 85% at 100% 0%, rgba(221, 247, 106, 0.16) 0%, rgba(221, 247, 106, 0) 55%),
+    linear-gradient(160deg, #262626 0%, #191919 45%, #111111 100%);
+  box-shadow: 0 18px 40px -18px rgba(17, 17, 17, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 .lux-card-alert {
   background:
@@ -217,14 +234,14 @@ html:not([lang="en"]) body {
 }
 .lux-card > * { position: relative; z-index: 1; }
 
-/* Lime tile: lime-yellow to slime gradient, used for highlights. */
+/* Lime tile: the accent, with a hint of depth. */
 .lime-tile {
-  background: linear-gradient(135deg, #e7fb86 0%, #ddf76a 45%, #b5e85a 100%);
+  background: linear-gradient(135deg, #e8fb8a 0%, #ddf76a 55%, #cfee55 100%);
 }
 
-/* Progress fills: slime → lime. */
-.bar-lux { background: linear-gradient(90deg, #2f8a2a 0%, #6fbf3a 55%, #b8e34a 100%); }
-.bar-lux-dark { background: linear-gradient(90deg, #8edb4f 0%, #ddf76a 100%); }
+/* Progress fills: ink on light, lime on dark. */
+.bar-lux { background: linear-gradient(90deg, #111111 0%, #3a3a3a 100%); }
+.bar-lux-dark { background: linear-gradient(90deg, #cfee55 0%, #ddf76a 100%); }
 
 /* The primary action glows lime. */
 .btn-glow { box-shadow: var(--shadow-glow), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
@@ -235,8 +252,8 @@ html:not([lang="en"]) body {
 
 /* Fade under the floating action row so content doesn't clash with it. */
 .action-fade {
-  background: linear-gradient(180deg, rgba(243, 245, 238, 0) 0%, rgba(243, 245, 238, 0.92) 38%, #f3f5ee 100%);
+  background: linear-gradient(180deg, rgba(244, 244, 241, 0) 0%, rgba(244, 244, 241, 0.92) 38%, #f4f4f1 100%);
 }
 
-.backdrop { background: rgba(10, 26, 17, 0.55); }
+.backdrop { background: rgba(17, 17, 17, 0.55); }
 .ring-rotate { transform: rotate(-90deg); }

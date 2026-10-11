@@ -28,7 +28,7 @@ export function Pots({ onOpenPot, onNewPot, onOpenEntry }: { onOpenPot: (id: str
           <BigNumber paise={totalInPots(state)} size="hero" tone="lime" />
         </div>
         {today > 0 && (
-          <p className="money mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#1d3a29] px-3 py-1 text-sm font-bold text-slime">
+          <p className="money mt-3 inline-flex items-center gap-1.5 rounded-full bg-forest-800 px-3 py-1 text-sm font-bold text-slime">
             {t("pots.todayPlus", { amount: formatINR(today) })}
           </p>
         )}
@@ -72,7 +72,7 @@ function Chart({ state }: { state: State }) {
         {days.map((d, i) => (
           <div
             key={`${d.label}-${i}`}
-            className={`flex-1 rounded-t-[3px] ${d.today ? "bg-lime" : d.movedPaise ? "bg-slime" : "bg-[#24402f]"}`}
+            className={`flex-1 rounded-t-[3px] ${d.today ? "bg-lime" : d.movedPaise ? "bg-slime" : "bg-track-dark"}`}
             style={{ height: `${Math.max(4, (d.movedPaise / max) * 100)}%` }}
             title={`${d.label}: ${formatINR(d.movedPaise)}`}
           />
@@ -113,14 +113,16 @@ export function PotDetail({ potId, onBack, onEdit, onWithdraw, onOpenEntry }: {
         </div>
         <p className="mt-5 text-sm font-medium text-on-dark-2">{t("pot.balance")}</p>
         <BigNumber paise={balance} size="hero" tone="lime" />
-        <p className="mt-2 text-base text-on-dark-2">{t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}</p>
+        <p className="mt-2 text-base text-on-dark-2">
+          {left === 0 ? t("pots.goalOf", { goal: formatINR(pot.goalPaise) }) : t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
+        </p>
         <div className="mt-4">
           <Progress value={balance / pot.goalPaise} tone="dark" label={name} />
         </div>
         <p className="mt-2 text-sm font-semibold text-on-dark">
-          {left === 0 ? t("pots.reached") : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(etaDays(state, pot), t)}`}
+          {left === 0 ? `${t("pots.reached")} ✓` : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(etaDays(state, pot), t)}`}
         </p>
-        <p className="mt-4 rounded-xl bg-[#1d3a29] px-3 py-2 text-sm text-on-dark-2">
+        <p className="mt-4 rounded-xl bg-forest-800 px-3 py-2 text-sm text-on-dark-2">
           {isFirst ? t("pot.shareRest", { pct: share }) : t("pot.share", { pct: share })} · {t("pot.shareExample", { n: share })}
         </p>
       </MoneyCard>

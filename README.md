@@ -37,8 +37,10 @@ column, centred.
 
 - **The floor is never swept.** `sweep()` fills the floor first, and only the surplus is
   split.
-- **Split of the surplus:** 20% emergency, 30% savings, and the rest (about 50%) to bike
-  & repairs. Rounding goes to bike & repairs, so the parts always add up to the surplus.
+- **Split of the surplus:** Bike 50% / Emergency 20% / Savings 30%. Rounding goes to
+  Bike, so the parts always add up to the surplus.
+- **Goals stop filling.** A pot at its goal gets nothing more; its share goes to Savings,
+  then to any pot with room. If every pot is full, the extra stays in the bank.
 - **We never hold money.** Pots are labels on money in the rider's own account.
 - **We never lend.** The credit screen shows eligibility and names the NBFC. There is no
   apply, disburse or repay action.
