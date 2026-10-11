@@ -130,8 +130,8 @@ export function PotCard({ pot, balance, eta, todayPaise, onOpen }: { pot: Pot; b
         <PotGlyph icon={pot.icon} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-bold text-ink">{name}</p>
-          <p className="text-sm text-muted">
-            {t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
+          <p className={left === 0 ? "text-sm font-semibold text-green-700" : "text-sm text-muted"}>
+            {left === 0 ? t("pots.goalOf", { goal: formatINR(pot.goalPaise) }) : t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
           </p>
         </div>
         <Money paise={balance} className="text-xl font-extrabold" />
@@ -140,7 +140,7 @@ export function PotCard({ pot, balance, eta, todayPaise, onOpen }: { pot: Pot; b
         <Progress value={balance / pot.goalPaise} label={name} />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 text-sm">
           <span className={left === 0 ? "font-semibold text-green-700" : "text-ink-2"}>
-            {left === 0 ? t("pots.reached") : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(eta, t)}`}
+            {left === 0 ? `${t("pots.reached")} ✓` : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(eta, t)}`}
           </span>
           {todayPaise > 0 && <span className="money font-semibold text-green-700">{t("pots.todayPlus", { amount: formatINR(todayPaise) })}</span>}
         </div>
@@ -189,14 +189,15 @@ export function TextButton({ children, onClick, className = "", icon: Icon, tone
   );
 }
 
-export function Chip({ children, selected, onClick, label }: { children: ReactNode; selected: boolean; onClick: () => void; label?: string }) {
+export function Chip({ children, selected, onClick, label, disabled }: { children: ReactNode; selected: boolean; onClick: () => void; label?: string; disabled?: boolean }) {
   return (
     <button
       type="button"
+      disabled={disabled}
       aria-pressed={selected}
       aria-label={label}
       onClick={onClick}
-      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-night bg-lime text-night" : "border-transparent bg-card text-ink shadow-card"}`}
+      className={`press inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 px-4 text-base font-semibold ${selected ? "border-night bg-lime text-night" : disabled ? "border-transparent bg-surface text-muted line-through" : "border-transparent bg-card text-ink shadow-card"}`}
     >
       {children}
     </button>
@@ -294,8 +295,8 @@ export interface ConfirmRow {
 }
 
 /** Every money movement: amount, direction and destination, shown before it happens. */
-export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, onBack, danger }: {
-  title: string; sub?: string; rows: ConfirmRow[]; note?: ReactNode; confirmLabel: string; onConfirm: () => void; onBack: () => void; danger?: boolean;
+export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, onBack, danger, disabled }: {
+  title: string; sub?: string; rows: ConfirmRow[]; note?: ReactNode; confirmLabel: string; onConfirm: () => void; onBack: () => void; danger?: boolean; disabled?: boolean;
 }) {
   const { t } = useSambhal();
   return (
@@ -326,7 +327,7 @@ export function ConfirmBody({ title, sub, rows, note, confirmLabel, onConfirm, o
             {confirmLabel}
           </button>
         ) : (
-          <PrimaryButton onClick={onConfirm}>{confirmLabel}</PrimaryButton>
+          <PrimaryButton onClick={onConfirm} disabled={disabled}>{confirmLabel}</PrimaryButton>
         )}
         <TextButton onClick={onBack} tone="muted" className="w-full">
           {t("action.back")}

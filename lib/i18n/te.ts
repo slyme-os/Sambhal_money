@@ -235,4 +235,8 @@ export const te: Record<MsgKey, string> = {
   "sms.shareHow": "మీ SMS యాప్‌లో బ్యాంక్ మెసేజ్‌ను నొక్కి పట్టుకుని, షేర్ నొక్కి, Sambhal ఎంచుకోండి.",
   "sms.cardBodyShare": "బ్యాంక్ లేదా UPI SMS ను Sambhal కి షేర్ చేయండి, పేమెంట్ ఆటోమేటిక్‌గా నిండుతుంది.",
   "sms.shareOnly": "మీరు షేర్ చేసిన SMS మాత్రమే చదువుతాం.",
+  "pay.max": "In this demo, one payment can be at most {amount}.",
+  "row.staysInBank": "Stays in your bank (all goals reached)",
+  "pots.goalOf": "లక్ష్యం {goal}",
+  "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
 };

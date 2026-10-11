@@ -6,7 +6,7 @@
 // how much of a payment is set aside for essentials and how much is extra; allocate()
 // splits the extra across pots by their share.
 
-import { FLOOR_PAISE, type SourceId } from "./config";
+import { FLOOR_PAISE, MAX_PAYMENT_PAISE, type SourceId } from "./config";
 import { RUPEE } from "./money";
 import type { DetectedTxn, ExpenseCategory } from "./smsParse";
 import { sweep } from "./sweep";
@@ -115,8 +115,12 @@ export function shares(pots: Pot[]): Record<string, number> {
  * Split `surplus` paise across pots. Every pot but the first gets floor(surplus × share);
  * the first gets the remainder, so the parts always sum exactly to the surplus. With
  * the default pots this is identical to sweep()'s 50/20/30 split.
+ *
+ * With `balances`, no pot is filled past its goal: a full pot's share goes to Savings,
+ * then to any pot that still has room. If every pot is full, the rest is not moved and
+ * simply stays in the rider's bank account.
  */
-export function allocate(surplus: number, pots: Pot[]): Record<string, number> {
+export function allocate(surplus: number, pots: Pot[], balances?: Record<string, number>): Record<string, number> {
   const out: Record<string, number> = {};
   if (pots.length === 0) return out;
   let rest = surplus;
@@ -126,12 +130,43 @@ export function allocate(surplus: number, pots: Pot[]): Record<string, number> {
     rest -= v;
   }
   out[pots[0].id] = rest;
+  if (!balances) return out;
+
+  const room = (p: Pot) => Math.max(0, p.goalPaise - (balances[p.id] ?? 0) - out[p.id]);
+  let spill = 0;
+  for (const p of pots) {
+    const over = Math.max(0, out[p.id] - Math.max(0, p.goalPaise - (balances[p.id] ?? 0)));
+    out[p.id] -= over;
+    spill += over;
+  }
+  const order = [...pots.filter((p) => p.id === SPILL_POT), ...pots.filter((p) => p.id !== SPILL_POT)];
+  for (const p of order) {
+    if (spill === 0) break;
+    const add = Math.min(spill, room(p));
+    out[p.id] += add;
+    spill -= add;
+  }
+  return out;
+}
+
+/** Where a full pot's share goes. */
+export const SPILL_POT = "savings";
+
+/** Balances from every entry except the given day's payouts (the base a day replays on). */
+function balancesBefore(entries: Entry[], day: string, pots: Pot[]): Record<string, number> {
+  const out: Record<string, number> = Object.fromEntries(pots.map((p) => [p.id, 0]));
+  for (const e of entries) {
+    if (e.kind === "opening" && e.potId in out) out[e.potId] += e.amountPaise;
+    else if (e.kind === "withdraw" && e.potId in out) out[e.potId] -= e.amountPaise;
+    else if (e.kind === "payout" && e.day !== day) for (const [id, v] of Object.entries(e.alloc)) if (id in out) out[id] += v;
+  }
   return out;
 }
 
 /** Replay one day's payouts in order, so a removed or edited entry recomputes the day. */
 export function recomputeDay(entries: Entry[], day: string, essentials: number, pots: Pot[]): Entry[] {
   let earned = 0;
+  const balances = balancesBefore(entries, day, pots);
   const order = entries
     .filter((e): e is Extract<Entry, { kind: "payout" }> => e.kind === "payout" && e.day === day)
     .sort((a, b) => a.at - b.at);
@@ -139,7 +174,9 @@ export function recomputeDay(entries: Entry[], day: string, essentials: number, 
   for (const p of order) {
     const r = sweep(p.amountPaise, earned, essentials);
     earned += p.amountPaise;
-    next.set(p.id, { ...p, toEssentialsPaise: r.toFloor, alloc: allocate(r.surplus, pots) });
+    const alloc = allocate(r.surplus, pots, balances);
+    for (const [id, v] of Object.entries(alloc)) balances[id] = (balances[id] ?? 0) + v;
+    next.set(p.id, { ...p, toEssentialsPaise: r.toFloor, alloc });
   }
   return entries.map((e) => next.get(e.id) ?? e);
 }
@@ -175,6 +212,10 @@ export function potBalance(s: State, potId: string): number {
     if (e.kind === "withdraw" && e.potId === potId) return t - e.amountPaise;
     return t;
   }, 0);
+}
+/** Every pot's balance, keyed by pot id. */
+export function potBalances(s: State): Record<string, number> {
+  return Object.fromEntries(s.pots.map((p) => [p.id, potBalance(s, p.id)]));
 }
 export function totalInPots(s: State): number {
   return s.pots.reduce((t, p) => t + potBalance(s, p.id), 0);
@@ -314,7 +355,7 @@ export function reducer(s: State, a: Action): State {
     }
 
     case "payout": {
-      if (!isMoney(a.amountPaise)) return s;
+      if (!isMoney(a.amountPaise) || a.amountPaise > MAX_PAYMENT_PAISE) return s;
       const r = sweep(a.amountPaise, earnedToday(s), s.essentialsPaise);
       const entry: Entry = {
         kind: "payout",
@@ -324,7 +365,7 @@ export function reducer(s: State, a: Action): State {
         amountPaise: a.amountPaise,
         source: a.source,
         toEssentialsPaise: r.toFloor,
-        alloc: allocate(r.surplus, s.pots),
+        alloc: allocate(r.surplus, s.pots, potBalances(s)),
         ...(a.smsRef ? { origin: "sms" as const } : {}),
       };
       // An SMS payment can be older than ones already added: replay the day in time order.

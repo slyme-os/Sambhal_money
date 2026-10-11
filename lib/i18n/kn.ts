@@ -235,4 +235,8 @@ export const kn: Record<MsgKey, string> = {
   "sms.shareHow": "ನಿಮ್ಮ SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಬ್ಯಾಂಕ್ ಮೆಸೇಜ್ ಒತ್ತಿ ಹಿಡಿಯಿರಿ, ಶೇರ್ ಒತ್ತಿ, ನಂತರ Sambhal ಆರಿಸಿ.",
   "sms.cardBodyShare": "ಬ್ಯಾಂಕ್ ಅಥವಾ UPI SMS ಅನ್ನು Sambhal ಗೆ ಶೇರ್ ಮಾಡಿ, ಪೇಮೆಂಟ್ ತಾನಾಗಿ ತುಂಬುತ್ತದೆ.",
   "sms.shareOnly": "ನೀವು ಶೇರ್ ಮಾಡಿದ SMS ಮಾತ್ರ ಓದಲಾಗುತ್ತದೆ.",
+  "pay.max": "In this demo, one payment can be at most {amount}.",
+  "row.staysInBank": "Stays in your bank (all goals reached)",
+  "pots.goalOf": "ಗುರಿ {goal}",
+  "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
 };

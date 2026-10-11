@@ -178,6 +178,85 @@ describe("ledger — allocation and balances", () => {
   });
 });
 
+describe("ledger — the demo script", () => {
+  it("a ₹1,400 payment after essentials are filled splits 50/20/30: ₹700 bike, ₹280 emergency, ₹420 savings", () => {
+    const s = pay(seed(), "t", 1400);
+    expect(s.entries.at(-1)).toMatchObject({ toEssentialsPaise: 0, alloc: { bike: 700 * R, emergency: 280 * R, savings: 420 * R } });
+  });
+
+  it("a ₹1,400 first payment of the day keeps ₹300 for essentials and splits ₹1,100", () => {
+    const s = pay(emptyDay(), "t", 1400);
+    expect(s.entries.at(-1)).toMatchObject({ toEssentialsPaise: 300 * R, alloc: { bike: 550 * R, emergency: 220 * R, savings: 330 * R } });
+  });
+
+  it("one payment is capped at ₹5,000", () => {
+    expect(earnedToday(pay(seed(), "ok", 5000))).toBe((730 + 5000) * R);
+    const s = seed();
+    expect(pay(s, "big", 5001)).toBe(s);
+  });
+
+  it("reset restores the exact seed after anything the rider did", () => {
+    let s = pay(seed(), "a", 2000);
+    s = reducer(s, { type: "withdraw", id: "w", at: NOON, potId: "bike", amountPaise: 100 * R, reason: "repair" });
+    s = reducer(s, { type: "updatePot", id: "emergency", patch: { goalPaise: 5000 * R, weight: 40 } });
+    s = reducer(s, { type: "reset", now: NOON });
+    expect(earnedToday(s)).toBe(730 * R);
+    expect(potBalance(s, "bike")).toBe(1750 * R);
+    expect(potBalance(s, "emergency")).toBe(640 * R);
+    expect(potBalance(s, "savings")).toBe(2180 * R);
+    expect(s.pots).toEqual(DEFAULT_POTS);
+  });
+});
+
+describe("ledger — goals", () => {
+  it("a full pot's share goes to Savings: bike stops at ₹2,500", () => {
+    // Bike ₹1,750 → +₹700 → ₹2,450. Of the next ₹400, bike's ₹200 share has room for ₹50.
+    const s = pay(pay(seed(), "a", 1400), "b", 400, NOON + 1);
+    expect(potBalance(s, "bike")).toBe(2500 * R);
+    expect(s.entries.at(-1)).toMatchObject({ alloc: { bike: 50 * R, emergency: 80 * R, savings: 120 * R + 150 * R } });
+  });
+
+  it("when Savings is full too, the rest goes to a pot that still has room", () => {
+    // Savings ₹2,600 after the first ₹1,400 has room for ₹400 more; the rest goes to emergency.
+    const s = pay(pay(seed(), "a", 1400), "b", 1400, NOON + 1);
+    expect(potBalance(s, "savings")).toBe(3000 * R);
+    expect(s.entries.at(-1)).toMatchObject({ alloc: { bike: 50 * R, emergency: 950 * R, savings: 400 * R } });
+  });
+
+  it("when every pot is full, the extra is not moved: it stays in the bank", () => {
+    let s = seed();
+    for (let i = 0; i < 6; i++) s = pay(s, `p${i}`, 5000, NOON + i);
+    for (const p of s.pots) expect(potBalance(s, p.id)).toBe(p.goalPaise);
+    const before = totalInPots(s);
+    expect(totalInPots(pay(s, "x", 1000, NOON + 9))).toBe(before);
+  });
+
+  it("property: no payment ever fills a pot past its goal, and nothing is lost or invented", () => {
+    fc.assert(
+      fc.property(fc.array(fc.integer({ min: 1, max: 5_000 }), { maxLength: 15 }), (amounts) => {
+        let s = seed();
+        amounts.forEach((a, i) => {
+          const before = totalInPots(s);
+          s = pay(s, `p${i}`, a, NOON + i);
+          const p = s.entries.at(-1)!;
+          const moved = p.kind === "payout" ? Object.values(p.alloc).reduce((x, y) => x + y, 0) : 0;
+          const surplus = p.kind === "payout" ? p.amountPaise - p.toEssentialsPaise : 0;
+          expect(moved).toBeLessThanOrEqual(surplus);
+          expect(totalInPots(s) - before).toBe(moved);
+        });
+        for (const pot of s.pots) expect(potBalance(s, pot.id)).toBeLessThanOrEqual(pot.goalPaise);
+      }),
+    );
+  });
+
+  it("removing a payment replays the day with goals in mind", () => {
+    let s = pay(seed(), "a", 1400, NOON);
+    s = pay(s, "b", 1400, NOON + 1);
+    s = reducer(s, { type: "remove", id: "a" });
+    expect(s.entries.find((e) => e.id === "b")).toMatchObject({ alloc: { bike: 700 * R, emergency: 280 * R, savings: 420 * R } });
+  });
+});
+
 describe("working day", () => {
   it("starts at 4 AM India time: a 1 AM payment belongs to the previous day", () => {
     expect(dayKey(Date.UTC(2026, 9, 11, 19, 30))).toBe("2026-10-11"); // 12 Oct, 1:00 IST

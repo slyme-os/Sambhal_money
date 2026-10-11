@@ -235,4 +235,8 @@ export const or: Record<MsgKey, string> = {
   "sms.shareHow": "ଆପଣଙ୍କ SMS ଆପରେ ବ୍ୟାଙ୍କ ମେସେଜକୁ ଦବାଇ ଧରନ୍ତୁ, ସେୟାର ଦବାନ୍ତୁ, ତାପରେ Sambhal ବାଛନ୍ତୁ।",
   "sms.cardBodyShare": "ବ୍ୟାଙ୍କ କିମ୍ବା UPI SMS କୁ Sambhal ରେ ସେୟାର କରନ୍ତୁ, ପେମେଣ୍ଟ ନିଜେ ଭରିଯିବ।",
   "sms.shareOnly": "କେବଳ ଆପଣ ସେୟାର କରୁଥିବା SMS ପଢାଯାଏ।",
+  "pay.max": "In this demo, one payment can be at most {amount}.",
+  "row.staysInBank": "Stays in your bank (all goals reached)",
+  "pots.goalOf": "ଲକ୍ଷ୍ୟ {goal}",
+  "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
 };

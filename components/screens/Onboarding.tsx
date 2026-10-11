@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ArrowLeft, Fuel, Landmark, PiggyBank, ShieldCheck, Sparkles } from "lucide-react";
 import { ESSENTIALS_CHOICES_PAISE } from "@/lib/config";
 import { RUPEE } from "@/lib/money";
+import { potBalance } from "@/lib/ledger";
 import { useSambhal } from "@/lib/store";
 import { CHOOSE_LANGUAGE_MULTI, LanguageList } from "../sheets/LanguageSheet";
 import { Chip, Money, POT_ICONS, PrimaryButton, TextButton, TrustBadge, potName } from "../ds";
@@ -109,7 +110,7 @@ export function Onboarding() {
             <p className="mb-2 mt-5 text-base font-semibold text-ink">{t("ob.3.goal")}</p>
             <div className="flex flex-wrap gap-2">
               {GOALS.map((g) => (
-                <Chip key={g} selected={goal === g} onClick={() => setGoal(g)}>
+                <Chip key={g} selected={goal === g} disabled={!!pot && g < potBalance(state, pot.id)} onClick={() => setGoal(g)}>
                   <Money paise={g} />
                 </Chip>
               ))}

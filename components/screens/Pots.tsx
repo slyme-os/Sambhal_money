@@ -113,12 +113,14 @@ export function PotDetail({ potId, onBack, onEdit, onWithdraw, onOpenEntry }: {
         </div>
         <p className="mt-5 text-sm font-medium text-on-dark-2">{t("pot.balance")}</p>
         <BigNumber paise={balance} size="hero" tone="lime" />
-        <p className="mt-2 text-base text-on-dark-2">{t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}</p>
+        <p className="mt-2 text-base text-on-dark-2">
+          {left === 0 ? t("pots.goalOf", { goal: formatINR(pot.goalPaise) }) : t("pots.of", { balance: formatINR(balance), goal: formatINR(pot.goalPaise) })}
+        </p>
         <div className="mt-4">
           <Progress value={balance / pot.goalPaise} tone="dark" label={name} />
         </div>
         <p className="mt-2 text-sm font-semibold text-on-dark">
-          {left === 0 ? t("pots.reached") : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(etaDays(state, pot), t)}`}
+          {left === 0 ? `${t("pots.reached")} ✓` : `${t("pots.toGo", { amount: formatINR(left) })} · ${etaText(etaDays(state, pot), t)}`}
         </p>
         <p className="mt-4 rounded-xl bg-[#1d3a29] px-3 py-2 text-sm text-on-dark-2">
           {isFirst ? t("pot.shareRest", { pct: share }) : t("pot.share", { pct: share })} · {t("pot.shareExample", { n: share })}

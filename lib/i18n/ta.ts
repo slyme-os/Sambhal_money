@@ -235,4 +235,8 @@ export const ta: Record<MsgKey, string> = {
   "sms.shareHow": "உங்கள் SMS ஆப்பில் பேங்க் மெசேஜை அழுத்திப் பிடித்து, ஷேர் தட்டி, Sambhal-ஐத் தேர்ந்தெடுங்கள்.",
   "sms.cardBodyShare": "பேங்க் அல்லது UPI SMS-ஐ Sambhal-க்கு ஷேர் செய்யுங்கள், பேமெண்ட் தானாக நிரம்பும்.",
   "sms.shareOnly": "நீங்கள் ஷேர் செய்யும் SMS மட்டுமே படிக்கப்படும்.",
+  "pay.max": "In this demo, one payment can be at most {amount}.",
+  "row.staysInBank": "Stays in your bank (all goals reached)",
+  "pots.goalOf": "இலக்கு {goal}",
+  "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
 };

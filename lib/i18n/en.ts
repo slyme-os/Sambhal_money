@@ -235,6 +235,10 @@ export const en = {
   "sms.shareHow": "In your SMS app, press and hold a bank message, tap Share, then pick Sambhal.",
   "sms.cardBodyShare": "Share a bank or UPI SMS to Sambhal and it fills in the payment for you.",
   "sms.shareOnly": "Only the SMS you share is read.",
+  "pay.max": "In this demo, one payment can be at most {amount}.",
+  "row.staysInBank": "Stays in your bank (all goals reached)",
+  "pots.goalOf": "Goal {goal}",
+  "edit.goalTooLow": "Goal can't be below what's in the pot ({amount}).",
 };
 
 export type MsgKey = keyof typeof en;

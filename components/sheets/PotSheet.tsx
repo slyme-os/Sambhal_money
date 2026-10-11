@@ -5,8 +5,8 @@
 
 import { useState } from "react";
 import type { Pot, PotIcon } from "@/lib/ledger";
-import { shares, sharesOverflow } from "@/lib/ledger";
-import { RUPEE } from "@/lib/money";
+import { potBalance, shares, sharesOverflow } from "@/lib/ledger";
+import { formatINR, RUPEE } from "@/lib/money";
 import { newId, useSambhal } from "@/lib/store";
 import { Chip, Money, POT_ICONS, PrimaryButton, Sheet, potName } from "../ds";
 
@@ -31,7 +31,11 @@ export function PotSheet({ potId, onClose }: { potId?: string; onClose: () => vo
   const first = state.pots[0];
   const firstShare = shares(nextPots)[first.id];
   const nameMissing = name.trim().length === 0;
-  const canSave = !nameMissing && goalPaise > 0 && !overflow;
+  // A goal below what's already in the pot would show it past its goal.
+  const balance = existing ? potBalance(state, existing.id) : 0;
+  const goalTooLow = goalPaise > 0 && goalPaise < balance;
+  const canSave = !nameMissing && goalPaise > 0 && !goalTooLow && !overflow;
+  const wouldOverflow = (w: number) => sharesOverflow(existing ? state.pots.map((p) => (p.id === existing.id ? { ...p, weight: w } : p)) : [...state.pots, { ...draft, weight: w }]);
 
   const save = () => {
     setTouched(true);
@@ -90,7 +94,7 @@ export function PotSheet({ potId, onClose }: { potId?: string; onClose: () => vo
           <label htmlFor="pot-goal" className="mb-2 block text-base font-semibold text-ink">{t("edit.goal")}</label>
           <div className="mb-2 flex flex-wrap gap-2">
             {GOALS.map((g) => (
-              <Chip key={g} selected={goalPaise === g} onClick={() => setGoalRupees(String(g / RUPEE))}>
+              <Chip key={g} selected={goalPaise === g} disabled={g < balance} onClick={() => setGoalRupees(String(g / RUPEE))}>
                 <Money paise={g} />
               </Chip>
             ))}
@@ -99,6 +103,7 @@ export function PotSheet({ potId, onClose }: { potId?: string; onClose: () => vo
             <span className="money text-lg font-bold text-ink-2" aria-hidden>₹</span>
             <input id="pot-goal" inputMode="numeric" pattern="[0-9]*" value={goalRupees} onChange={(e) => setGoalRupees(e.target.value.replace(/\D/g, "").slice(0, 6))} className="money min-h-12 w-full bg-transparent px-2 text-lg font-bold text-ink focus:outline-none" />
           </div>
+          {goalTooLow && <p className="mt-1.5 text-sm font-semibold text-red-600" role="alert">{t("edit.goalTooLow", { amount: formatINR(balance) })}</p>}
         </div>
 
         <fieldset>
@@ -111,7 +116,7 @@ export function PotSheet({ potId, onClose }: { potId?: string; onClose: () => vo
             <>
               <div className="flex flex-wrap gap-2">
                 {SHARE_CHOICES.map((w) => (
-                  <Chip key={w} selected={weight === w} onClick={() => setWeight(w)}>
+                  <Chip key={w} selected={weight === w} disabled={weight !== w && wouldOverflow(w)} onClick={() => setWeight(w)}>
                     {w}%
                   </Chip>
                 ))}

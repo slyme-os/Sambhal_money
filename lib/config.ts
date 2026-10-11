@@ -11,7 +11,9 @@ export const FLOOR_PAISE = 300 * RUPEE;
 export const ESSENTIALS_CHOICES_PAISE = [200, 300, 400, 500].map((r) => r * RUPEE);
 
 /** A payment above this asks the rider to double-check the amount. */
-export const LARGE_PAYMENT_PAISE = 5_000 * RUPEE;
+export const LARGE_PAYMENT_PAISE = 2_000 * RUPEE;
+/** Demo hard cap: a single payment above this can't be added. */
+export const MAX_PAYMENT_PAISE = 5_000 * RUPEE;
 
 /** Income sources. Brand names are descriptive only; one palette, no brand colours. */
 export const SOURCES = [

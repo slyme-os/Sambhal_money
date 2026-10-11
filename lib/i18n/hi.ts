@@ -234,4 +234,8 @@ export const hi: Record<MsgKey, string> = {
   "sms.shareHow": "अपने SMS ऐप में बैंक मैसेज को दबाकर रखें, शेयर दबाएँ, फिर Sambhal चुनें।",
   "sms.cardBodyShare": "बैंक या UPI SMS को Sambhal पर शेयर करें, पेमेंट अपने आप भर जाएगा।",
   "sms.shareOnly": "सिर्फ़ वही SMS पढ़ा जाता है जो आप शेयर करते हैं।",
+  "pay.max": "इस डेमो में एक पेमेंट ज़्यादा से ज़्यादा {amount} का हो सकता है।",
+  "row.staysInBank": "आपके बैंक में ही रहेगा (सभी लक्ष्य पूरे)",
+  "pots.goalOf": "लक्ष्य {goal}",
+  "edit.goalTooLow": "लक्ष्य गुल्लक में जमा रकम ({amount}) से कम नहीं हो सकता।",
 };
