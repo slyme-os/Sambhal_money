@@ -4,9 +4,10 @@
 // action bar with the one primary action, and three tabs. A phone-width column on
 // every screen size.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HandCoins, House, Minus, MoreHorizontal, PiggyBank, Plus, type LucideIcon } from "lucide-react";
 import type { MsgKey } from "@/lib/i18n";
+import { onBackButton, styleStatusBar } from "@/lib/native";
 import { SambhalStore, useSambhal } from "@/lib/store";
 import { PrimaryButton, SecondaryButton, SkeletonScreen, ToastHost } from "./ds";
 import { Home } from "./screens/Home";
@@ -63,6 +64,20 @@ function Shell() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  // Android back: close a sheet, then leave pot detail, then go Home; exit from Home.
+  const back = useRef<() => boolean>(() => false);
+  back.current = () => {
+    if (sheet) return setSheet(null), true;
+    if (potId) return window.history.back(), true;
+    if (state.onboarded && tab !== "home") return setTab("home"), true;
+    return false;
+  };
+  useEffect(() => {
+    styleStatusBar();
+    return onBackButton(() => back.current());
+  }, []);
+
   const goTab = (next: Tab) => {
     if (potId) window.history.back();
     setTab(next);

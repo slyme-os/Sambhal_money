@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sambhal</string>
+    <string name="title_activity_main">Sambhal</string>
+    <string name="package_name">app.sambhal.money</string>
+    <string name="custom_url_scheme">app.sambhal.money</string>
+</resources>
