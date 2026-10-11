@@ -232,6 +232,9 @@ export const en = {
   "home.spentToday": "Spent today",
   "src.upi": "Other UPI",
   "menu.sms": "SMS auto-capture",
+  "sms.shareHow": "In your SMS app, press and hold a bank message, tap Share, then pick Sambhal.",
+  "sms.cardBodyShare": "Share a bank or UPI SMS to Sambhal and it fills in the payment for you.",
+  "sms.shareOnly": "Only the SMS you share is read.",
 };
 
 export type MsgKey = keyof typeof en;

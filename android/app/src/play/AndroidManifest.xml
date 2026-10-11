@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play Store build only. SMS auto-capture (opt-in) reads bank / UPI SMS on the phone to
+     suggest payments and spends; nothing is uploaded. Google Play "SMS-based money
+     management" use: needs the Permissions Declaration Form in Play Console. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.READ_SMS" />
+</manifest>

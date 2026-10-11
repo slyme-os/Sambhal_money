@@ -1,8 +1,12 @@
 name: Android
 
-# Builds the Sambhal Android app on every push. The debug APK installs on any phone
-# for testing. If the upload-key secrets are set, it also builds a signed release
-# AAB (for Play Store) and APK.
+# Builds the Sambhal Android app on every push.
+#  - sambhal-apk-<n>: the "sideload" APK. No SMS permission, so Play Protect lets it
+#    install from a file on any phone. Signed with the fixed debug key, so each new APK
+#    installs over the last one.
+#  - sambhal-play-debug-apk-<n>: the "play" build with automatic SMS reading, for
+#    testing only (sideloading it is blocked while Play Protect is on).
+# If the upload-key secrets are set, it also builds the signed Play Store AAB.
 
 on:
   push:
@@ -39,14 +43,20 @@ jobs:
           java-version: 21
           cache: gradle
 
-      - name: Build debug APK
+      - name: Build APKs (sideload + play debug)
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleSideloadDebug assemblePlayDebug --no-daemon --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sambhal-debug-apk-${{ github.run_number }}
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: sambhal-apk-${{ github.run_number }}
+          path: android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sambhal-play-debug-apk-${{ github.run_number }}
+          path: android/app/build/outputs/apk/play/debug/app-play-debug.apk
           if-no-files-found: error
 
       - name: Build signed release (AAB + APK)
@@ -59,12 +69,12 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
           export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
-          ./gradlew bundleRelease assembleRelease --no-daemon --stacktrace
+          ./gradlew bundlePlayRelease assembleSideloadRelease --no-daemon --stacktrace
 
       - uses: actions/upload-artifact@v4
         if: env.HAS_UPLOAD_KEY == 'true'
         with:
           name: sambhal-release-${{ github.run_number }}
           path: |
-            android/app/build/outputs/bundle/release/app-release.aab
-            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/playRelease/app-play-release.aab
+            android/app/build/outputs/apk/sideload/release/app-sideload-release.apk

@@ -7,7 +7,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
 import { detectLang, isLang, translate, type MsgKey, type Vars } from "./i18n";
 import { isState, reducer, seedState, type Action, type Lang, type State } from "./ledger";
-import { hasSmsPermission, readMoneySms, smsSupported } from "./sms";
+import { getSmsMode, hasSmsPermission, onSharedText, readMoneySms, type SmsMode } from "./sms";
+import { parseSms } from "./smsParse";
 import { dayStart } from "./time";
 
 const KEY = "sambhal:v1";
@@ -30,6 +31,10 @@ interface StoreValue {
   dismissToast: () => void;
   /** Reads new bank / UPI SMS into the inbox (Android, when SMS capture is on). */
   scanSms: () => Promise<void>;
+  /** What this build can do with SMS: read the inbox, receive shares, or web demo. */
+  smsMode: SmsMode;
+  /** Bumps when an SMS is shared to the app, so the shell can open the inbox. */
+  shareTick: number;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -61,11 +66,38 @@ export function SambhalStore({ children }: { children: ReactNode }) {
   }, []);
   const dismissToast = useCallback(() => setToast(null), []);
 
+  const [smsMode, setSmsMode] = useState<SmsMode>("web");
+  const [shareTick, setShareTick] = useState(0);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const modeRef = useRef<SmsMode>("web");
+
+  useEffect(() => {
+    void getSmsMode().then((m) => {
+      modeRef.current = m;
+      setSmsMode(m);
+    });
+  }, []);
+
+  // "Share → Sambhal" from the SMS app: parse the shared text into the inbox and open it.
+  useEffect(() => {
+    if (!ready) return;
+    return onSharedText((text) => {
+      const txn = parseSms(text, Date.now());
+      const lang = stateRef.current.lang;
+      if (!txn) {
+        showToast({ message: translate(lang, "sms.pasteNone"), tone: "alert" });
+        return;
+      }
+      if (!stateRef.current.sms.enabled) dispatch({ type: "smsEnable" });
+      dispatch({ type: "smsFound", txns: [txn], scannedAt: stateRef.current.sms.lastScanAt });
+      setShareTick((n) => n + 1);
+    });
+  }, [ready, showToast]);
+
   const scanSms = useCallback(async () => {
     const s = stateRef.current;
-    if (!s.sms.enabled || !smsSupported() || !(await hasSmsPermission())) return;
+    if (!s.sms.enabled || modeRef.current !== "auto" || !(await hasSmsPermission())) return;
     // Start the next read from when this one began, so an SMS arriving mid-read isn't lost.
     const started = Date.now();
     try {
@@ -78,7 +110,7 @@ export function SambhalStore({ children }: { children: ReactNode }) {
 
   // SMS capture: check on open, on return to the app, and every 30s while it's open.
   useEffect(() => {
-    if (!ready || !state.sms.enabled) return;
+    if (!ready || !state.sms.enabled || smsMode !== "auto") return;
     void scanSms();
     const visible = () => document.visibilityState === "visible";
     const onVisible = () => visible() && void scanSms();
@@ -88,7 +120,7 @@ export function SambhalStore({ children }: { children: ReactNode }) {
       document.removeEventListener("visibilitychange", onVisible);
       clearInterval(timer);
     };
-  }, [ready, state.sms.enabled, scanSms]);
+  }, [ready, state.sms.enabled, smsMode, scanSms]);
 
   // Load once, then roll the day over if the phone was closed past 4 AM.
   useEffect(() => {
@@ -120,8 +152,8 @@ export function SambhalStore({ children }: { children: ReactNode }) {
   }, [state.lang]);
 
   const value = useMemo(
-    () => ({ state, dispatch, ready, lang: state.lang, t, toast, showToast, dismissToast, scanSms }),
-    [state, ready, t, toast, showToast, dismissToast, scanSms],
+    () => ({ state, dispatch, ready, lang: state.lang, t, toast, showToast, dismissToast, scanSms, smsMode, shareTick }),
+    [state, ready, t, toast, showToast, dismissToast, scanSms, smsMode, shareTick],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

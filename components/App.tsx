@@ -51,11 +51,19 @@ export function SambhalApp() {
 }
 
 function Shell() {
-  const { state, dispatch, ready, t } = useSambhal();
+  const { state, dispatch, ready, t, shareTick } = useSambhal();
   const [tab, setTab] = useState<Tab>("home");
   const [potId, setPotId] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
   const close = useCallback(() => setSheet(null), []);
+
+  // An SMS shared to Sambhal from another app lands in the inbox: open it.
+  useEffect(() => {
+    if (shareTick > 0) {
+      setTab("home");
+      setSheet({ kind: "sms" });
+    }
+  }, [shareTick]);
 
   // Pot detail is a pushed view, so Android's back button returns to the list.
   const openPot = (id: string) => {

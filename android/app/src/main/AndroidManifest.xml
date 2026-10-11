@@ -22,6 +22,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- "Share → Sambhal" from the SMS app: the shared bank SMS fills the inbox. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -38,8 +45,6 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- SMS auto-capture (opt-in): reads bank / UPI SMS on the phone to suggest payments
-         and spends. Google Play "SMS-based money management" use; needs the Permissions
-         Declaration Form in Play Console. Nothing is uploaded. -->
-    <uses-permission android:name="android.permission.READ_SMS" />
+    <!-- No SMS permission here: Play Protect blocks sideloaded apps that ask for it.
+         The "play" flavor adds READ_SMS (src/play/AndroidManifest.xml). -->
 </manifest>

@@ -232,4 +232,7 @@ export const ml: Record<MsgKey, string> = {
   "home.spentToday": "ഇന്നത്തെ ചെലവ്",
   "src.upi": "മറ്റ് UPI",
   "menu.sms": "SMS ഓട്ടോ-ക്യാപ്‌ചർ",
+  "sms.shareHow": "നിങ്ങളുടെ SMS ആപ്പിൽ ബാങ്ക് മെസേജ് അമർത്തിപ്പിടിച്ച്, ഷെയർ തൊട്ട്, Sambhal തിരഞ്ഞെടുക്കുക.",
+  "sms.cardBodyShare": "ബാങ്ക് അല്ലെങ്കിൽ UPI SMS Sambhal-ലേക്ക് ഷെയർ ചെയ്യുക, പേയ്‌മെന്റ് തനിയെ നിറയും.",
+  "sms.shareOnly": "നിങ്ങൾ ഷെയർ ചെയ്യുന്ന SMS മാത്രമേ വായിക്കൂ.",
 };

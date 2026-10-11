@@ -1,6 +1,9 @@
 package app.sambhal.money;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.Telephony;
 import com.getcapacitor.JSArray;
@@ -21,6 +24,10 @@ import java.util.regex.Pattern;
  * Privacy: only messages that look like a completed money movement (an amount plus a
  * credit or debit word) are returned; everything else stays on the device unread by the
  * app. Nothing is sent anywhere: the web layer parses and stores only amounts and names.
+ *
+ * Reading the inbox needs READ_SMS, which only the Play Store build declares. Every
+ * build also accepts "Share → Sambhal" from the SMS app (no permission needed): the
+ * shared text is handed to the web layer as a "sharedText" event.
  */
 @CapacitorPlugin(
     name = "SmsInbox",
@@ -34,6 +41,56 @@ public class SmsInboxPlugin extends Plugin {
     private static final Pattern MONEY_WORD = Pattern.compile(
         "\\b(credited|debited|received|deposited|sent|paid|spent|withdrawn|transferred)\\b"
     );
+
+    private static SmsInboxPlugin instance;
+    private static String pendingShare;
+
+    @Override
+    public void load() {
+        instance = this;
+        emitShare();
+    }
+
+    /** Called by MainActivity for launch and new intents; keeps shared text until JS is ready. */
+    static void handleIntent(Intent intent) {
+        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) return;
+        String type = intent.getType();
+        if (type == null || !type.startsWith("text/")) return;
+        String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (text == null || text.trim().isEmpty()) return;
+        pendingShare = text;
+        if (instance != null) instance.emitShare();
+    }
+
+    private void emitShare() {
+        if (pendingShare == null) return;
+        JSObject data = new JSObject();
+        data.put("text", pendingShare);
+        pendingShare = null;
+        // Retained until the web layer adds its listener.
+        notifyListeners("sharedText", data, true);
+    }
+
+    /** Whether this build can read the inbox (the Play build declares READ_SMS). */
+    @PluginMethod
+    public void capabilities(PluginCall call) {
+        boolean declared = false;
+        try {
+            PackageInfo info = getContext()
+                .getPackageManager()
+                .getPackageInfo(getContext().getPackageName(), PackageManager.GET_PERMISSIONS);
+            if (info.requestedPermissions != null) {
+                for (String p : info.requestedPermissions) {
+                    if (Manifest.permission.READ_SMS.equals(p)) declared = true;
+                }
+            }
+        } catch (Exception e) {
+            declared = false;
+        }
+        JSObject r = new JSObject();
+        r.put("canRead", declared);
+        call.resolve(r);
+    }
 
     @PluginMethod
     public void checkPermission(PluginCall call) {

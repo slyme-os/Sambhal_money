@@ -1,6 +1,9 @@
-// Bridge to the native SmsInbox plugin (android/app/.../SmsInboxPlugin.java). On the web
-// and in older APKs the plugin is absent: smsSupported() is false and the app offers
-// sample messages and "paste an SMS" instead.
+// Bridge to the native SmsInbox plugin (android/app/.../SmsInboxPlugin.java).
+// Modes:
+//  - "auto":  Play Store build (declares READ_SMS): reads bank / UPI SMS from the inbox.
+//  - "share": sideloaded APK (no SMS permission, so Play Protect allows the install):
+//             riders share an SMS to Sambhal, or paste it.
+//  - "web":   browser / older APKs: sample messages and paste.
 
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import { parseSms, type DetectedTxn } from "./smsParse";
@@ -12,7 +15,11 @@ interface SmsMessage {
   date: number;
 }
 
+export type SmsMode = "auto" | "share" | "web";
+
 interface SmsInboxPlugin {
+  capabilities(): Promise<{ canRead: boolean }>;
+  addListener(event: "sharedText", cb: (data: { text: string }) => void): Promise<{ remove: () => Promise<void> }>;
   checkPermission(): Promise<{ granted: boolean }>;
   requestPermission(): Promise<{ granted: boolean }>;
   readSince(options: { since: number; limit?: number }): Promise<{ messages: SmsMessage[] }>;
@@ -20,10 +27,35 @@ interface SmsInboxPlugin {
 
 const SmsInbox = registerPlugin<SmsInboxPlugin>("SmsInbox");
 
-export const smsSupported = (): boolean => Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("SmsInbox");
+const pluginPresent = (): boolean => Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("SmsInbox");
+
+/** Which SMS features this build has. */
+export async function getSmsMode(): Promise<SmsMode> {
+  if (!pluginPresent()) return "web";
+  try {
+    return (await SmsInbox.capabilities()).canRead ? "auto" : "share";
+  } catch {
+    return "share";
+  }
+}
+
+/** Text shared to Sambhal from another app (e.g. a bank SMS). Returns an unsubscribe. */
+export function onSharedText(cb: (text: string) => void): () => void {
+  if (!pluginPresent()) return () => {};
+  let remove: (() => Promise<void>) | undefined;
+  let stopped = false;
+  void SmsInbox.addListener("sharedText", (d) => cb(d.text)).then((h) => {
+    if (stopped) void h.remove();
+    else remove = h.remove;
+  });
+  return () => {
+    stopped = true;
+    void remove?.();
+  };
+}
 
 export async function requestSmsPermission(): Promise<boolean> {
-  if (!smsSupported()) return false;
+  if (!pluginPresent()) return false;
   try {
     return (await SmsInbox.requestPermission()).granted;
   } catch {
@@ -32,7 +64,7 @@ export async function requestSmsPermission(): Promise<boolean> {
 }
 
 export async function hasSmsPermission(): Promise<boolean> {
-  if (!smsSupported()) return false;
+  if (!pluginPresent()) return false;
   try {
     return (await SmsInbox.checkPermission()).granted;
   } catch {

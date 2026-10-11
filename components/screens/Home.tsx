@@ -109,7 +109,7 @@ export function Home({ onOpenEntry, onOpenSms }: { onOpenEntry: (id: string) => 
 
 /** SMS auto-capture on Home: an invitation when off, a banner when something was found. */
 function SmsCard({ onOpen }: { onOpen: () => void }) {
-  const { state, t, lang } = useSambhal();
+  const { state, t, lang, smsMode } = useSambhal();
   const { enabled, pending, lastScanAt } = state.sms;
   if (!enabled) {
     return (
@@ -120,7 +120,7 @@ function SmsCard({ onOpen }: { onOpen: () => void }) {
           </span>
           <div>
             <h2 className="text-base font-bold text-ink">{t("sms.cardTitle")}</h2>
-            <p className="mt-0.5 text-sm text-muted">{t("sms.cardBody")}</p>
+            <p className="mt-0.5 text-sm text-muted">{smsMode === "share" ? t("sms.cardBodyShare") : t("sms.cardBody")}</p>
           </div>
         </div>
         <SecondaryButton icon={MessageSquareText} className="mt-3" onClick={onOpen}>

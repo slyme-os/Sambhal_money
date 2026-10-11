@@ -232,4 +232,7 @@ export const te: Record<MsgKey, string> = {
   "home.spentToday": "ఈరోజు ఖర్చు",
   "src.upi": "ఇతర UPI",
   "menu.sms": "SMS ఆటో-క్యాప్చర్",
+  "sms.shareHow": "మీ SMS యాప్‌లో బ్యాంక్ మెసేజ్‌ను నొక్కి పట్టుకుని, షేర్ నొక్కి, Sambhal ఎంచుకోండి.",
+  "sms.cardBodyShare": "బ్యాంక్ లేదా UPI SMS ను Sambhal కి షేర్ చేయండి, పేమెంట్ ఆటోమేటిక్‌గా నిండుతుంది.",
+  "sms.shareOnly": "మీరు షేర్ చేసిన SMS మాత్రమే చదువుతాం.",
 };

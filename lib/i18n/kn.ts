@@ -232,4 +232,7 @@ export const kn: Record<MsgKey, string> = {
   "home.spentToday": "ಇಂದಿನ ಖರ್ಚು",
   "src.upi": "ಬೇರೆ UPI",
   "menu.sms": "SMS ಆಟೋ-ಕ್ಯಾಪ್ಚರ್",
+  "sms.shareHow": "ನಿಮ್ಮ SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಬ್ಯಾಂಕ್ ಮೆಸೇಜ್ ಒತ್ತಿ ಹಿಡಿಯಿರಿ, ಶೇರ್ ಒತ್ತಿ, ನಂತರ Sambhal ಆರಿಸಿ.",
+  "sms.cardBodyShare": "ಬ್ಯಾಂಕ್ ಅಥವಾ UPI SMS ಅನ್ನು Sambhal ಗೆ ಶೇರ್ ಮಾಡಿ, ಪೇಮೆಂಟ್ ತಾನಾಗಿ ತುಂಬುತ್ತದೆ.",
+  "sms.shareOnly": "ನೀವು ಶೇರ್ ಮಾಡಿದ SMS ಮಾತ್ರ ಓದಲಾಗುತ್ತದೆ.",
 };

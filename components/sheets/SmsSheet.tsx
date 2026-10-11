@@ -6,10 +6,10 @@
 // added with their category. "Add all" previews the totals before anything changes.
 
 import { useState } from "react";
-import { ClipboardPaste, Hand, Lock, MessageSquareText, Power, RefreshCw, Sparkles } from "lucide-react";
+import { ClipboardPaste, Hand, Lock, MessageSquareText, Power, RefreshCw, Share2, Sparkles } from "lucide-react";
 import { movedToday, reducer, type State } from "@/lib/ledger";
 import { formatINR } from "@/lib/money";
-import { requestSmsPermission, smsSupported } from "@/lib/sms";
+import { requestSmsPermission } from "@/lib/sms";
 import { parseSms, sampleSms, type DetectedTxn } from "@/lib/smsParse";
 import { newId, useSambhal } from "@/lib/store";
 import { timeLabel } from "@/lib/time";
@@ -24,14 +24,15 @@ export interface PaymentPrefill {
 }
 
 export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAddPayment: (p: PaymentPrefill) => void }) {
-  const { state, dispatch, t, lang, showToast, scanSms } = useSambhal();
+  const { state, dispatch, t, lang, showToast, scanSms, smsMode } = useSambhal();
   const [view, setView] = useState<"main" | "all">("main");
   const [denied, setDenied] = useState(false);
   const [showPaste, setShowPaste] = useState(false);
   const [pasted, setPasted] = useState("");
   const [pasteMiss, setPasteMiss] = useState(false);
   const [checking, setChecking] = useState(false);
-  const native = smsSupported();
+  const native = smsMode === "auto";
+  const share = smsMode === "share";
   const pending = state.sms.pending;
 
   const addSamples = () => {
@@ -46,6 +47,7 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
   };
 
   const allow = async () => {
+    if (share) return dispatch({ type: "smsEnable" });
     if (!native) {
       dispatch({ type: "smsEnable" });
       addSamples();
@@ -96,12 +98,19 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
   };
 
   if (!state.sms.enabled) {
-    const points = [
-      { Icon: MessageSquareText, text: t("sms.consent1") },
-      { Icon: Lock, text: t("sms.consent2") },
-      { Icon: Hand, text: t("sms.consent3") },
-      { Icon: Power, text: t("sms.consent4") },
-    ];
+    const points = share
+      ? [
+          { Icon: Share2, text: t("sms.shareHow") },
+          { Icon: MessageSquareText, text: t("sms.shareOnly") },
+          { Icon: Lock, text: t("sms.consent2") },
+          { Icon: Hand, text: t("sms.consent3") },
+        ]
+      : [
+          { Icon: MessageSquareText, text: t("sms.consent1") },
+          { Icon: Lock, text: t("sms.consent2") },
+          { Icon: Hand, text: t("sms.consent3") },
+          { Icon: Power, text: t("sms.consent4") },
+        ];
     return (
       <Sheet onClose={onClose} label={t("sms.consentTitle")}>
         <div className="space-y-4">
@@ -119,11 +128,11 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
               </li>
             ))}
           </ul>
-          {!native && <p className="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">{t("sms.webOnly")}</p>}
+          {smsMode === "web" && <p className="rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">{t("sms.webOnly")}</p>}
           {denied && <p className="rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700" role="alert">{t("sms.denied")}</p>}
           <div className="space-y-1">
-            <PrimaryButton icon={native ? MessageSquareText : Sparkles} onClick={() => void allow()}>
-              {native ? t("sms.allow") : t("sms.trySample")}
+            <PrimaryButton icon={native ? MessageSquareText : share ? Share2 : Sparkles} onClick={() => void allow()}>
+              {native ? t("sms.allow") : share ? t("action.done") : t("sms.trySample")}
             </PrimaryButton>
             <TextButton tone="muted" className="w-full" onClick={onClose}>
               {t("sms.notNow")}
@@ -166,6 +175,13 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
           </p>
         </div>
 
+        {share && (
+          <p className="flex items-start gap-2 rounded-2xl bg-lime-50 p-3 text-sm font-medium text-ink">
+            <Share2 size={18} className="mt-0.5 shrink-0 text-green-700" aria-hidden />
+            {t("sms.shareHow")}
+          </p>
+        )}
+
         {pending.length === 0 ? (
           <EmptyState icon={MessageSquareText} title={t("sms.title")} body={t("sms.empty")} />
         ) : (
@@ -196,11 +212,11 @@ export function SmsSheet({ onClose, onAddPayment }: { onClose: () => void; onAdd
             <SecondaryButton icon={RefreshCw} onClick={() => { setChecking(true); void scanSms().finally(() => setChecking(false)); }} disabled={checking}>
               {t("sms.checkNow")}
             </SecondaryButton>
-          ) : (
+          ) : smsMode === "web" ? (
             <SecondaryButton icon={Sparkles} onClick={addSamples}>
               {t("sms.trySample")}
             </SecondaryButton>
-          )}
+          ) : null}
           <SecondaryButton icon={ClipboardPaste} onClick={() => setShowPaste(!showPaste)}>
             {t("sms.paste")}
           </SecondaryButton>

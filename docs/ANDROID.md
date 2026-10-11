@@ -16,9 +16,21 @@ Every push to `feat/gmoney-mvp` or `main` runs the **Android** workflow on GitHu
 Actions, which builds a debug APK.
 
 1. GitHub → repo → **Actions** → latest **Android** run → **Artifacts** →
-   `sambhal-debug-apk-<n>` (a zip containing `app-debug.apk`).
+   `sambhal-apk-<n>` (a zip containing `app-sideload-debug.apk`).
 2. Send the APK to an Android phone (WhatsApp/Drive/USB), open it, allow
    "Install unknown apps" for that app once, and install.
+
+**Two builds.** Play Protect blocks *sideloaded* apps that request SMS permissions (India's
+enhanced fraud protection), so:
+- **sideload** (`sambhal-apk-<n>`): no SMS permission; installs from a file anywhere. SMS
+  arrives by **Share → Sambhal** from the SMS app, or Paste.
+- **play** (`sambhal-play-debug-apk-<n>`, and the Play Store AAB): adds `READ_SMS` for automatic
+  capture. Installs from the Play Store after the permissions declaration; sideloading it only
+  works with Play Protect turned off, so use it for testing only.
+
+All test APKs are signed with the committed debug key (`android/app/sambhal-debug.keystore`),
+so each new one installs over the last. An install from before this key existed must be
+uninstalled once.
 
 You can also start a build by hand: Actions → Android → **Run workflow**.
 
@@ -31,7 +43,7 @@ npm ci
 npm run android:sync     # static export into out/ + copy into android/
 npm run android:open     # opens Android Studio → Run ▶ on a phone/emulator
 # or, from the command line:
-npm run android:apk      # → android/app/build/outputs/apk/debug/app-debug.apk
+npm run android:apk      # → android/app/build/outputs/apk/sideload/debug/app-sideload-debug.apk
 ```
 
 After any change to the web app, run `npm run android:sync` again.
@@ -47,7 +59,8 @@ After any change to the web app, run `npm run android:sync` again.
 3. **Add four GitHub secrets** (repo → Settings → Secrets and variables → Actions):
    `ANDROID_KEYSTORE_BASE64` (`base64 -w0 sambhal-upload.jks`), `ANDROID_KEYSTORE_PASSWORD`,
    `ANDROID_KEY_ALIAS` (`sambhal`), `ANDROID_KEY_PASSWORD`. The next push also produces
-   `sambhal-release-<n>` with a signed `app-release.aab` (upload this to Play) and APK.
+   `sambhal-release-<n>` with a signed `app-play-release.aab` (upload this to Play) and a
+   signed sideload APK.
 4. **Store listing** — name, short and full description (Hindi + English), the 512×512
    icon at `android/play-store-icon-512.png`, a 1024×500 feature graphic, and 2–8 phone
    screenshots.
@@ -66,6 +79,8 @@ The app reads bank / UPI SMS on the phone (opt-in) and suggests payments and spe
 "Found in your SMS" inbox. Nothing is added until the rider taps **Add**; payments still go
 through the usual preview-and-confirm.
 
+- Only the **play** build declares `READ_SMS` (`android/app/src/play/AndroidManifest.xml`); every
+  build accepts SMS shared to it.
 - Native part: `android/app/src/main/java/app/sambhal/money/SmsInboxPlugin.java` (only messages
   with an amount and a credit/debit word are returned); parsing in `lib/smsParse.ts`
   (tests in `tests/smsParse.test.ts`). The SMS text is never stored or uploaded, only the parsed
@@ -83,9 +98,8 @@ Before uploading a build with it you must:
 2. Keep the in-app disclosure (the consent sheet) shown **before** the Android permission prompt.
 3. Describe SMS use in the privacy policy and the Data safety form (collected: no; processed on
    device only).
-If Play rejects it, ship without the permission: remove the `READ_SMS` line from
-`AndroidManifest.xml`. Turning SMS capture on then shows "SMS access was not allowed", and riders
-keep adding payments by hand as before.
+If Play rejects it, upload the **sideload** flavor's bundle instead (`./gradlew bundleSideloadRelease`):
+no SMS permission, and riders add SMS by Share → Sambhal.
 
 ## Before a real release
 

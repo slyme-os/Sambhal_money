@@ -232,4 +232,7 @@ export const bn: Record<MsgKey, string> = {
   "home.spentToday": "আজকের খরচ",
   "src.upi": "অন্য UPI",
   "menu.sms": "SMS অটো-ক্যাপচার",
+  "sms.shareHow": "আপনার SMS অ্যাপে ব্যাংকের মেসেজ চেপে ধরে রাখুন, শেয়ার চাপুন, তারপর Sambhal বেছে নিন।",
+  "sms.cardBodyShare": "ব্যাংক বা UPI SMS Sambhal-এ শেয়ার করুন, পেমেন্ট নিজে থেকে ভরে যাবে।",
+  "sms.shareOnly": "শুধু আপনি যে SMS শেয়ার করেন সেটাই পড়া হয়।",
 };
